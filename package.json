@@ -1,0 +1,80 @@
+{
+  "name": "algoBox",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "homepage": "/",
+  "scripts": {
+    "build": "cd extension && npm run build",
+    "postinstall": "cd extension && npm install",
+    "start": "cd extension && npm run start"
+  },
+  "author": "Robin Thomas <robinthomas2591@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint-config-react-app": "^5.2.0",
+    "eslint-plugin-node": "^11.0.0",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.0.8",
+    "prettier": "^1.19.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,css,json,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended",
+      "plugin:node/recommended",
+      "react-app"
+    ],
+    "rules": {
+      "no-console": [
+        "off"
+      ],
+      "no-empty": [
+        "off"
+      ],
+      "no-constant-condition": [
+        "off"
+      ],
+      "no-useless-catch": [
+        "off"
+      ],
+      "node/no-missing-require": [
+        "error"
+      ],
+      "node/no-missing-import": [
+        "error"
+      ],
+      "node/no-unpublished-import": [
+        "warn"
+      ],
+      "node/no-unpublished-require": [
+        "warn"
+      ],
+      "node/no-unsupported-features/es-syntax": [
+        "off"
+      ]
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "algoBox",
+  "short_name": "algoBox",
+  "version": "1.0.0",
+  "manifest_version": 2,
+  "description": "This extension gets Algorand working on the browser side! Yay!",
+  "permissions": [
+    "declarativeContent",
+    "tabs",
+    "nativeMessaging",
+    "*://*/*",
+    "activeTab",
+    "webRequest",
+    "webRequestBlocking",
+    "storage"
+  ],
+  "icons": {
+    "128": "logo_128.png"
+  },
+  "browser_action": {
+    "default_title": "algoBox",
+    "default_popup": "index.html",
+    "default_icon": {
+      "128": "logo_128.png"
+    }
+  },
+  "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'",
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": [],
+      "css": [],
+      "run_at": "document_start"
+    }
+  ]
+}
