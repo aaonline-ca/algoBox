@@ -2,15 +2,17 @@ import React, { useState, useEffect } from "react";
 
 import Cache from "./Cache";
 
+import * as config from "../config.json";
+
 const DataContext = React.createContext();
 
 const DataProvider = props => {
-  const [user, setUser] = useState(null);
   const [page, setPage] = useState("home");
   const [input, setInput] = useState({});
   const [app, setApp] = useState({});
   const [wallet, setWallet] = useState(null);
   const [network, setNetwork] = useState("testnet");
+  const [networks] = useState(config.algorand.networks);
 
   useEffect(() => {
     const fn = async () => {
@@ -24,8 +26,6 @@ const DataProvider = props => {
   return (
     <DataContext.Provider
       value={{
-        user,
-        setUser,
         page,
         setPage,
         input,
@@ -35,7 +35,8 @@ const DataProvider = props => {
         wallet,
         setWallet,
         network,
-        setNetwork
+        setNetwork,
+        networks
       }}
     >
       {props.children}
