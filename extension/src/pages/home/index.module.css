@@ -1,0 +1,29 @@
+.card {
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+.card-header {
+  padding: 0 !important;
+  height: 45px !important;
+  background: white !important;
+  border-bottom: 0 !important;
+}
+
+.card-header:hover {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+.btn-link {
+  width: 100% !important;
+  text-transform: none !important;
+  color: rgb(23, 33, 40) !important;
+  margin: 0 !important;
+  padding: 0 15px !important;
+  height: 100% !important;
+}
+
+.btn-link:hover {
+  text-decoration: none !important;
+  color: rgb(23, 33, 40);
+}

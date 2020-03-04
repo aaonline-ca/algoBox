@@ -62,6 +62,9 @@
       ],
       "node/no-unsupported-features/es-syntax": [
         "off"
+      ],
+      "node/no-extraneous-import": [
+        "off"
       ]
     }
   },

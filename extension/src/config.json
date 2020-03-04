@@ -1,0 +1,24 @@
+{
+  "app": {
+    "name": "algoBox",
+    "github": "https://github.com/robin-thomas/algobox"
+  },
+  "algorand": {
+    "api": {
+      "testnet": {
+        "server": "https://testnet-algorand.api.purestake.io/ps1",
+        "port": "",
+        "key": "rvsGLX3XD57HNkFVhXUkW5Epad2dlh3U3TzUPkvs"
+      },
+      "mainnet": {
+        "server": "https://mainnet-algorand.api.purestake.io/ps1",
+        "port": "",
+        "key": "rvsGLX3XD57HNkFVhXUkW5Epad2dlh3U3TzUPkvs"
+      }
+    },
+    "explorer": {
+      "mainnet": "https://algoexplorer.io/tx/{txId}",
+      "testnet": "https://testnet.algoexplorer.io/tx/{txId}"
+    }
+  }
+}
