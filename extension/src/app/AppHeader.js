@@ -6,10 +6,10 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 
+import { AppCard, AppCardHeader } from "../pages/home";
 import { DataContext } from "../utils/DataProvider";
 
 import LogoImg from "../assets/logo_128.png";
-
 import config from "../config.json";
 
 const useStyles = makeStyles(theme => ({
@@ -61,10 +61,22 @@ const Header = () => {
   );
 };
 
-const AppHeader = props => (
-  <Card.Header>
-    <Header />
-  </Card.Header>
-);
+const AppHeader = props => {
+  const ctx = useContext(DataContext);
+
+  return ctx.page !== "home" ? (
+    <div style={{ borderBottom: "1px solid rgba(0,0,0,.125)" }}>
+      <AppCard
+        cls="algobox-back-btn"
+        buttonText={<AppCardHeader icon="angle-left" text="Back" />}
+        onClick={() => ctx.setPage("home")}
+      />
+    </div>
+  ) : (
+    <Card.Header>
+      <Header />
+    </Card.Header>
+  );
+};
 
 export default AppHeader;

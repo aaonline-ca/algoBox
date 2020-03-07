@@ -6,12 +6,13 @@ import { Button, Card, Row, Col } from "react-bootstrap";
 
 import Algorand from "../../utils/Algorand";
 import { DataContext } from "../../utils/DataProvider";
+import EmptyRow from "../../utils/EmptyRow";
 
 import css from "./index.module.css";
 
-const AppCard = ({ buttonText, onClick }) => (
-  <Card className={css["card"]}>
-    <Card.Header className={css["card-header"]}>
+const AppCard = ({ buttonText, onClick, cls }) => (
+  <Card className={css.card}>
+    <Card.Header className={cx(cls ? cls : "", css["card-header"])}>
       <Button variant="link" className={css["btn-link"]} onClick={onClick}>
         {buttonText}
       </Button>
@@ -90,9 +91,7 @@ const Home = props => {
     <div>
       {ctx.wallet === null ? (
         <>
-          <Row>
-            <Col>&nbsp;</Col>
-          </Row>
+          <EmptyRow />
           <Row>
             <Col md="auto" className="mx-auto">
               <MDBBtn
@@ -132,9 +131,7 @@ const Home = props => {
               Create an account
             </Col>
           </Row>
-          <Row>
-            <Col>&nbsp;</Col>
-          </Row>
+          <EmptyRow />
         </>
       ) : (
         items.map(({ icon, text, page, action }, index) => (

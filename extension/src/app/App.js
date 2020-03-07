@@ -6,12 +6,11 @@ import AppHeader from "./AppHeader";
 import AppBody from "./AppBody";
 
 import appCss from "../index.module.css";
-import mdb from "../assets/css/mdb.module.css";
 
 import config from "../config.json";
 
 const App = props => (
-  <Card style={{ width: "300px", userSelect: "none" }} className={mdb.card}>
+  <Card style={{ width: "300px", userSelect: "none" }}>
     <AppHeader />
     <AppBody />
     <Card.Header

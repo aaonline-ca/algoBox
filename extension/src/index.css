@@ -15,3 +15,8 @@ body {
   background-color: rgb(255, 255, 255);
   margin: 0px;
 }
+
+.algobox-back-btn {
+  padding: 0.75rem 1.25rem !important;
+  height: 51px !important;
+}
