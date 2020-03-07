@@ -16,6 +16,10 @@ body {
   margin: 0px;
 }
 
+.algobox {
+  padding: 0.75rem 1.25rem !important;
+}
+
 .algobox-back-btn {
   padding: 0.75rem 1.25rem !important;
   height: 51px !important;

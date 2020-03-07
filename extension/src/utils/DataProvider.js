@@ -13,6 +13,14 @@ const DataProvider = props => {
   const [wallet, setWallet] = useState(null);
   const [network, setNetwork] = useState("testnet");
   const [networks] = useState(config.algorand.networks);
+  const [validation, setValidation] = useState({
+    amount: false,
+    toAddress: false
+  });
+  const [txDate, setTxDate] = useState(null);
+  const [memo, setMemo] = useState(null);
+  const [txs, setTxs] = useState({});
+  const [worker, setWorker] = useState(null);
 
   useEffect(() => {
     const fn = async () => {
@@ -36,7 +44,17 @@ const DataProvider = props => {
         setWallet,
         network,
         setNetwork,
-        networks
+        networks,
+        validation,
+        setValidation,
+        txDate,
+        setTxDate,
+        memo,
+        setMemo,
+        txs,
+        setTxs,
+        worker,
+        setWorker
       }}
     >
       {props.children}
