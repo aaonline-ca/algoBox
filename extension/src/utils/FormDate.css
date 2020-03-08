@@ -1,0 +1,17 @@
+.MuiPickersBasePicker-pickerView {
+  max-width: 268px !important;
+  min-width: 268px !important;
+}
+
+.MuiTypography-body2 {
+  font-size: 0.75em !important;
+}
+
+.MuiPickersDay-day,
+.MuiPickersCalendarHeader-dayLabel {
+  margin: 0 !important;
+}
+
+.MuiInputLabel-formControl {
+  font-size: 0.9rem !important;
+}

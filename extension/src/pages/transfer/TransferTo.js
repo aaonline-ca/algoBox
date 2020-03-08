@@ -1,10 +1,10 @@
 import React, { useEffect, useContext } from "react";
 
 import { MDBBtn } from "mdbreact";
-import { Row, Col, Form } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 
 import Algorand from "../../utils/Algorand";
-import { DataConsumer, DataContext } from "../../utils/DataProvider";
+import { DataContext } from "../../utils/DataProvider";
 import Input from "../../utils/Input";
 import Logo from "../../assets/logo_128.png";
 import ScheduleDate from "./ScheduleDate";
@@ -14,8 +14,6 @@ import * as config from "../../config.json";
 import "./TransferTo.css";
 
 const TransferTo = props => {
-  const networks = Object.keys(config.algorand.api);
-
   const ctx = useContext(DataContext);
 
   useEffect(() => {
@@ -96,41 +94,37 @@ const TransferTo = props => {
     <div>
       <Row>
         <Col className="align-self-center">
-          <DataConsumer>
-            {ctx => (
-              <div>
-                <p className="algorand-transferto-balance-p">
-                  Address:
-                  <span style={{ float: "right" }}>
-                    <span className="algorand-transferto-history-mock">
-                      [&nbsp;
-                    </span>
-                    <span
-                      title="See all transactions made in this session"
-                      className="algorand-transferto-history"
-                      onClick={() => ctx.setPage("history")}
-                    >
-                      View History
-                    </span>
-                    <span className="algorand-transferto-history-mock">
-                      &nbsp;]
-                    </span>
-                  </span>
-                  <span>{ctx.wallet ? ctx.wallet.address : null}</span>
-                </p>
-                <p className="algorand-transferto-balance-p">
-                  Balance:{" "}
-                  {ctx.account ? ctx.account.amount / Math.pow(10, 6) : "0.00"}
-                  &nbsp;
-                  <img src={Logo} alt="Logo" width="25px" height="25px" />
-                </p>
-              </div>
-            )}
-          </DataConsumer>
+          <div>
+            <p className="algorand-transferto-balance-p">
+              Address:
+              <span style={{ float: "right" }}>
+                <span className="algorand-transferto-history-mock">
+                  [&nbsp;
+                </span>
+                <span
+                  title="See all transactions made in this session"
+                  className="algorand-transferto-history"
+                  onClick={() => ctx.setPage("history")}
+                >
+                  View History
+                </span>
+                <span className="algorand-transferto-history-mock">
+                  &nbsp;]
+                </span>
+              </span>
+              <span>{ctx.wallet ? ctx.wallet.address : null}</span>
+            </p>
+            <p className="algorand-transferto-balance-p">
+              Balance:{" "}
+              {ctx.account ? ctx.account.amount / Math.pow(10, 6) : "0.00"}
+              &nbsp;
+              <img src={Logo} alt="Logo" width="25px" height="25px" />
+            </p>
+          </div>
         </Col>
       </Row>
       <Row>
-        <Col className="align-self-center">
+        <Col md="auto" className="align-self-center">
           <ScheduleDate />
         </Col>
       </Row>
@@ -152,25 +146,21 @@ const TransferTo = props => {
       </Row>
       <Row>
         <Col className="text-center">
-          <DataConsumer>
-            {ctx => (
-              <MDBBtn
-                color="elegant"
-                onClick={transfer}
-                disabled={
-                  ctx.disabled ||
-                  !ctx.validation.amount ||
-                  !ctx.validation.toAddress
-                }
-              >
-                {ctx.disabled ? (
-                  <i className="fas fa-spinner fa-spin"></i>
-                ) : (
-                  "Transfer Now"
-                )}
-              </MDBBtn>
+          <MDBBtn
+            color="elegant"
+            onClick={transfer}
+            disabled={
+              ctx.disabled ||
+              !ctx.validation.amount ||
+              !ctx.validation.toAddress
+            }
+          >
+            {ctx.disabled ? (
+              <i className="fas fa-spinner fa-spin"></i>
+            ) : (
+              "Transfer Now"
             )}
-          </DataConsumer>
+          </MDBBtn>
         </Col>
       </Row>
     </div>
