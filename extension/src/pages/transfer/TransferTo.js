@@ -124,7 +124,7 @@ const TransferTo = props => {
         </Col>
       </Row>
       <Row>
-        <Col md="auto" className="align-self-center">
+        <Col xs="auto" className="align-self-center">
           <ScheduleDate />
         </Col>
       </Row>

@@ -1,9 +1,12 @@
+/*global chrome*/
+
 import React, { useContext } from "react";
 
 import cx from "classnames";
 import { MDBBtn, MDBIcon } from "mdbreact";
 import { Button, Card, Row, Col } from "react-bootstrap";
 
+import Chrome from "../../utils/Chrome";
 import Algorand from "../../utils/Algorand";
 import { DataContext } from "../../utils/DataProvider";
 import EmptyRow from "../../utils/EmptyRow";
@@ -22,10 +25,10 @@ const AppCard = ({ buttonText, onClick, cls }) => (
 
 const AppCardHeader = ({ icon, text }) => (
   <Row>
-    <Col md="2" className="text-right">
+    <Col xs="2" className="text-right">
       <MDBIcon icon={icon} />
     </Col>
-    <Col md="9" className="text-left">
+    <Col xs="9" className="text-left">
       {text}
     </Col>
   </Row>
@@ -41,6 +44,7 @@ const Home = props => {
   const ctx = useContext(DataContext);
 
   const login = () => {
+    // await Chrome.login();
     const file = document.createElement("input");
     file.style.display = "none";
     file.type = "file";
@@ -93,7 +97,7 @@ const Home = props => {
         <>
           <EmptyRow />
           <Row>
-            <Col md="auto" className="mx-auto">
+            <Col xs="auto" className="mx-auto">
               <MDBBtn
                 style={{ paddingLeft: "75px", paddingRight: "75px" }}
                 color="elegant"
@@ -104,11 +108,11 @@ const Home = props => {
             </Col>
           </Row>
           <Row fluid={true}>
-            <Col md={{ span: 4, offset: 1 }} className="px-0">
+            <Col xs={{ span: 4, offset: 1 }} className="px-0">
               <hr />
             </Col>
             <Col
-              md={2}
+              xs={2}
               className="text-center px-0 align-self-center"
               style={{
                 fontSize: "15px",
@@ -118,7 +122,7 @@ const Home = props => {
             >
               or
             </Col>
-            <Col md={{ span: 4, offset: 0 }} className="px-0">
+            <Col xs={{ span: 4, offset: 0 }} className="px-0">
               <hr />
             </Col>
           </Row>

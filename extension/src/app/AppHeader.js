@@ -33,7 +33,7 @@ const Header = () => {
 
   return (
     <Row>
-      <Col md="auto" className="align-self-center">
+      <Col xs="auto" className="align-self-center">
         <img src={LogoImg} style={{ width: "32px", height: "32px" }} alt="" />
         <span style={{ position: "relative", top: "2px" }}>
           &nbsp;&nbsp;{config.app.name}

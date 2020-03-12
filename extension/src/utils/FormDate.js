@@ -19,7 +19,7 @@ const FormDate = ({ label, date, setDate }) => (
       disablePast={true}
       onChange={setDate}
       autoOk={true}
-      style={{ marginBottom: "35px" }}
+      style={{ marginBottom: "30px" }}
     />
   </MuiPickersUtilsProvider>
 );
