@@ -5,13 +5,14 @@ import { MDBInput } from "mdbreact";
 import { DataConsumer } from "./DataProvider";
 
 const Input = props => {
+  const [ref, setRef] = useState(null);
   const [text, setText] = useState(props.value ? props.value : "");
 
   const onChange = (target, text) => {
     setText(text);
 
     if (props.onChange) {
-      const { validate } = props.onChange(text);
+      const { validate } = props.onChange(text, ref);
 
       if (validate === undefined) {
         target.classList.remove("is-valid");
@@ -30,6 +31,7 @@ const Input = props => {
     <DataConsumer>
       {ctx => (
         <MDBInput
+          inputRef={setRef}
           type={props.type ? props.type : "text"}
           value={text}
           hint={props.hint}

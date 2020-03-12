@@ -1,12 +1,11 @@
-/*global chrome*/
-
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 
 import cx from "classnames";
 import { MDBBtn, MDBIcon } from "mdbreact";
 import { Button, Card, Row, Col } from "react-bootstrap";
 
-import Chrome from "../../utils/Chrome";
+import Input from "../../utils/Input";
+import Session from "../../utils/Session";
 import Algorand from "../../utils/Algorand";
 import { DataContext } from "../../utils/DataProvider";
 import EmptyRow from "../../utils/EmptyRow";
@@ -35,6 +34,11 @@ const AppCardHeader = ({ icon, text }) => (
 );
 
 const Home = props => {
+  const [ref, setRef] = useState(null);
+  const [password, setPassword] = useState(null);
+  const [register, setRegister] = useState(false);
+  const [disabled, setDisabled] = useState(true);
+
   const items = [
     { icon: "home", text: "Transfer", page: "transfer" },
     { icon: "lock", text: "History", page: "history" },
@@ -43,52 +47,52 @@ const Home = props => {
 
   const ctx = useContext(DataContext);
 
-  const login = () => {
-    // await Chrome.login();
-    const file = document.createElement("input");
-    file.style.display = "none";
-    file.type = "file";
-    file.name = "file";
-    file.accept = ".txt";
-    document.getElementById("root").appendChild(file);
-
-    file.onchange = e => {
-      const f = e.target.files[0];
-
-      const fr = new FileReader();
-      fr.onload = async evt => {
-        try {
-          const wallet = Algorand.getWallet(evt.target.result);
-          ctx.setWallet(wallet);
-          Algorand.getAccount(ctx.network, wallet.address).then(ctx.setAccount);
-
-          document.getElementById("root").removeChild(file);
-        } catch (err) {
-          alert("Invalid ALGO wallet file!");
-        }
-      };
-      fr.readAsText(f);
-    };
-    file.click();
+  const reset = () => {
+    setRegister(false);
+    setPassword(null);
+    setDisabled(true);
   };
 
-  const createWallet = () => {
-    const wallet = Algorand.createWallet();
+  const onRegister = async () => {
+    try {
+      const wallet = Algorand.createWallet();
 
-    const ele = document.createElement("a");
-    ele.setAttribute(
-      "href",
-      "data:text/plain;charset=utf-8," + encodeURIComponent(wallet.mnemonic)
-    );
-    ele.setAttribute("download", `algorand-wallet-${wallet.address}.txt`);
-    ele.style.display = "none";
-    document.body.appendChild(ele);
+      const ele = document.createElement("a");
+      ele.setAttribute(
+        "href",
+        "data:text/plain;charset=utf-8," + encodeURIComponent(wallet.mnemonic)
+      );
+      ele.setAttribute("download", `algorand-wallet-${wallet.address}.txt`);
+      ele.style.display = "none";
+      document.body.appendChild(ele);
 
-    ele.click();
+      ele.click();
 
-    document.body.removeChild(ele);
+      document.body.removeChild(ele);
 
-    ctx.setWallet(wallet);
+      Session.register(password, wallet);
+      ctx.setWallet(wallet);
+      reset();
+    } catch (err) {
+      console.log(err);
+      ref.classList.add("is-invalid");
+      ref.focus();
+    }
+  };
+
+  const onLogin = async () => {
+    try {
+      ref.classList.add("is-invalid");
+      ref.focus();
+
+      await Session.login(password);
+      ctx.setWallet(Session.wallets[0]);
+      reset();
+    } catch (err) {
+      console.log(err);
+      ref.classList.add("is-invalid");
+      ref.focus();
+    }
   };
 
   return (
@@ -98,16 +102,56 @@ const Home = props => {
           <EmptyRow />
           <Row>
             <Col xs="auto" className="mx-auto">
-              <MDBBtn
-                style={{ paddingLeft: "75px", paddingRight: "75px" }}
-                color="elegant"
-                onClick={login}
-              >
-                Login
-              </MDBBtn>
+              <Row>
+                <Col>
+                  <Input
+                    value={password}
+                    hint="Password"
+                    type="password"
+                    onChange={(text, ref) => {
+                      setRef(ref);
+                      setPassword(text);
+                      setDisabled(text ? false : true);
+                      return { validate: undefined };
+                    }}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  {register ? (
+                    <MDBBtn
+                      style={{
+                        margin: "0",
+                        paddingLeft: "80px",
+                        paddingRight: "80px"
+                      }}
+                      color="elegant"
+                      onClick={onRegister}
+                      disabled={disabled}
+                    >
+                      Register
+                    </MDBBtn>
+                  ) : (
+                    <MDBBtn
+                      style={{
+                        margin: "0",
+                        paddingLeft: "80px",
+                        paddingRight: "80px"
+                      }}
+                      color="elegant"
+                      onClick={onLogin}
+                      disabled={disabled}
+                    >
+                      Login
+                    </MDBBtn>
+                  )}
+                </Col>
+              </Row>
             </Col>
           </Row>
-          <Row fluid={true}>
+          <EmptyRow />
+          <Row>
             <Col xs={{ span: 4, offset: 1 }} className="px-0">
               <hr />
             </Col>
@@ -127,14 +171,25 @@ const Home = props => {
             </Col>
           </Row>
           <Row>
-            <Col
-              className="text-center"
-              style={{ cursor: "pointer" }}
-              onClick={createWallet}
-            >
-              Create an account
-            </Col>
+            {register ? (
+              <Col
+                className="text-center"
+                style={{ cursor: "pointer" }}
+                onClick={() => setRegister(false)}
+              >
+                Login to your account
+              </Col>
+            ) : (
+              <Col
+                className="text-center"
+                style={{ cursor: "pointer" }}
+                onClick={() => setRegister(true)}
+              >
+                Create an account
+              </Col>
+            )}
           </Row>
+          <EmptyRow />
           <EmptyRow />
         </>
       ) : (
