@@ -1,4 +1,5 @@
 import * as algosdk from "algosdk";
+import fromUnixTime from "date-fns/fromUnixTime";
 
 import * as config from "../config.json";
 
@@ -120,6 +121,48 @@ const Algorand = {
     }
 
     return await Algorand.sendTransaction(network, tx, secretKey);
+  },
+
+  getTransactions: async (network, address) => {
+    try {
+      const client = await Algorand.getClient(network);
+
+      // Current timestamp in seconds.
+      const now = Math.floor(Date.now() / 1000);
+
+      // Get the current block details.
+      // Use that to get the time for a given block.
+      const status = await client.status();
+      let lastRound = status.lastRound;
+
+      let completedTxs = await client.transactionByAddress(address);
+      if (
+        completedTxs &&
+        completedTxs.transactions &&
+        completedTxs.transactions.length > 0
+      ) {
+        completedTxs = completedTxs.transactions.map(tx => {
+          const blockDiff = lastRound - tx.round;
+
+          // Assuming a 4 second block time.
+          const seconds = now - blockDiff * 4;
+          const date = fromUnixTime(seconds);
+
+          return {
+            txId: tx.tx,
+            status: Algorand.status.SUCCESS,
+            url: config.algorand.explorer[network],
+            date
+          };
+        });
+      } else {
+        completedTxs = [];
+      }
+
+      return completedTxs;
+    } catch (err) {
+      throw err;
+    }
   },
 
   sleep: ms => {

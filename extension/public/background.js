@@ -25,7 +25,6 @@ const Approval = {
 
       localStorage.removeItem(Approval.key);
       localStorage.setItem(Approval.key, JSON.stringify(items));
-      console.log(items);
       console.log(`approving ${chrome.runtime.id}`);
     }
   },
@@ -38,6 +37,53 @@ const Approval = {
 Approval.reset();
 Approval.approve(chrome.runtime.id);
 
+const Callbacks = {
+  callbacks: {},
+
+  registerCallback: (id, callback) => {
+    Callbacks.callbacks[id] = callback;
+  },
+
+  sendResponse: (msgId, type, msg, cmd, args) => {
+    if (Callbacks.callbacks[msgId] !== undefined) {
+      Callbacks.callbacks[msgId]({
+        type: type,
+        result: msg
+      });
+
+      delete Callbacks.callbacks[msgId];
+    }
+  },
+
+  onMessage: response => {
+    console.log(response);
+
+    if (
+      response.id !== undefined &&
+      Callbacks.callbacks[response.id] !== undefined
+    ) {
+      if (Callbacks.callbacks[response.id].resolve !== undefined) {
+        if (response.type === "success") {
+          Callbacks.callbacks[response.id].resolve(response.result);
+        } else {
+          Callbacks.callbacks[response.id].reject(response.result);
+        }
+
+        delete Callbacks.callbacks[response.id];
+        return;
+      }
+
+      Callbacks.sendResponse(
+        response.id,
+        response.type,
+        response.result,
+        response.cmd,
+        response.args
+      );
+    }
+  }
+};
+
 const Process = {
   main: (message, sender, sendResponse) => {
     console.log(message);
@@ -49,34 +95,6 @@ const Process = {
         Process.triggerLogin();
         break;
     }
-  },
-
-  triggerLogin: () => {
-    const file = document.createElement("input");
-    file.style.display = "none";
-    file.type = "file";
-    file.name = "file";
-    file.accept = ".txt";
-    document.getElementById("root").appendChild(file);
-
-    file.onchange = e => {
-      const f = e.target.files[0];
-
-      const fr = new FileReader();
-      // fr.onload = async evt => {
-      //   try {
-      //     const wallet = Algorand.getWallet(evt.target.result);
-      //     ctx.setWallet(wallet);
-      //     Algorand.getAccount(ctx.network, wallet.address).then(ctx.setAccount);
-      //
-      //     document.getElementById("root").removeChild(file);
-      //   } catch (err) {
-      //     alert("Invalid ALGO wallet file!");
-      //   }
-      // };
-      fr.readAsText(f);
-    };
-    file.click();
   }
 };
 

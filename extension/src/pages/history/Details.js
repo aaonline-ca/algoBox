@@ -37,7 +37,7 @@ const Details = ({ txs }) => (
             lineHeight: "12px"
           }}
         >
-          * Pending transactions will be cancelled if browser is closed
+          * Pending transactions will be cancelled if popup is closed
         </p>
       </div>
     ) : (

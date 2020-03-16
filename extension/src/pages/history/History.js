@@ -1,66 +1,33 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 
-import { Row, Col } from "react-bootstrap";
-import ScrollArea from "react-scrollbar";
+import Details from "./Details";
 
-import Detail from "./Detail";
+import Algorand from "../../utils/Algorand";
+import { DataContext } from "../../utils/DataProvider";
 
-import EmptyRow from "../../utils/EmptyRow";
+const History = props => {
+  const ctx = useContext(DataContext);
 
-import "./Details.css";
+  const [txs, setTxs] = useState([]);
 
-const Details = ({ txs }) => (
-  <div>
-    <Row className="algorand-history-header">
-      <Col>
-        <span>Transactions in this session</span>
-      </Col>
-    </Row>
-    {txs && Object.keys(txs).length > 0 ? (
-      <div>
-        <ScrollArea
-          speed={0.8}
-          className="react-algorand-scrollarea"
-          smoothScrolling={true}
-          horizontal={false}
-          minScrollSize
-        >
-          {Object.keys(txs).map((key, index) => (
-            <Detail key={index} tx={txs[key]} />
-          ))}
-        </ScrollArea>
-        <EmptyRow />
-        <p
-          style={{
-            fontWeight: "400",
-            fontSize: "10px",
-            lineHeight: "12px"
-          }}
-        >
-          * Pending transactions will be cancelled if browser is closed
-        </p>
-      </div>
-    ) : (
-      <div>
-        <EmptyRow />
-        <Row className="algorand-history-row">
-          <Col>
-            <i className="fas fa-coins"></i>
-            <p
-              style={{
-                fontWeight: "400",
-                fontSize: "14px",
-                lineHeight: "15px"
-              }}
-            >
-              Nothing here! Make one transaction :)
-            </p>
-          </Col>
-        </Row>
-        <EmptyRow />
-      </div>
-    )}
-  </div>
-);
+  useEffect(() => {
+    const fn = async () => {
+      // Only completed transactions here.
+      const tx = await Algorand.getTransactions(
+        ctx.network,
+        ctx.wallet.address
+      );
+      setTxs(tx);
+    };
 
-export default Details;
+    fn();
+  }, [ctx.network, ctx.wallet]);
+
+  return (
+    <div>
+      <Details txs={txs} />
+    </div>
+  );
+};
+
+export default History;

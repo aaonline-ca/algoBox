@@ -15,7 +15,7 @@
     "bootstrap-css-only": "^4.4.1",
     "cheerio": "^1.0.0-rc.3",
     "classnames": "^2.2.6",
-    "date-fns": "^2.10.0",
+    "date-fns": "^2.11.0",
     "mdbreact": "^4.25.2",
     "react": "^16.13.0",
     "react-bootstrap": "^1.0.0-beta.17",
