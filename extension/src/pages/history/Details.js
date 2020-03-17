@@ -13,9 +13,7 @@ const Page = ({ children }) => (
   <div>
     <EmptyRow />
     <Row className="algorand-history-row">
-      <Col xs="auto" className="mx-auto">
-        {children}
-      </Col>
+      <Col className="text-center">{children}</Col>
     </Row>
     <EmptyRow />
   </div>
@@ -63,7 +61,8 @@ const Details = ({ txs }) => (
             lineHeight: "15px"
           }}
         >
-          Nothing here! Make one transaction :)
+          Nothing here! <br />
+          Make one transaction :)
         </p>
       </Page>
     ) : (
