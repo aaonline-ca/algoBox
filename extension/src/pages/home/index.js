@@ -187,8 +187,7 @@ const Home = props => {
               <LoginRegister value={true} text="Create an account" />
             )}
           </Row>
-          <EmptyRow />
-          <EmptyRow />
+          <EmptyRow rows={2} />
         </>
       ) : (
         items.map(({ icon, text, page, action }, index) => (

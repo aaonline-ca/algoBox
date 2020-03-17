@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Row, Col } from "react-bootstrap";
+import { Row, Col, Spinner } from "react-bootstrap";
 import ScrollArea from "react-scrollbar";
 
 import Detail from "./Detail";
@@ -9,13 +9,26 @@ import EmptyRow from "../../utils/EmptyRow";
 
 import "./Details.css";
 
+const Page = ({ children }) => (
+  <div>
+    <EmptyRow />
+    <Row className="algorand-history-row">
+      <Col xs="auto" className="mx-auto">
+        {children}
+      </Col>
+    </Row>
+    <EmptyRow />
+  </div>
+);
+
 const Details = ({ txs }) => (
   <div>
     <Row className="algorand-history-header">
-      <Col>
+      <Col xs="auto" className="mx-auto">
         <span>Transactions in this session</span>
       </Col>
     </Row>
+    <EmptyRow />
     {txs && Object.keys(txs).length > 0 ? (
       <div>
         <ScrollArea
@@ -40,25 +53,23 @@ const Details = ({ txs }) => (
           * Pending transactions will be cancelled if popup is closed
         </p>
       </div>
+    ) : txs !== null ? (
+      <Page>
+        <i className="fas fa-coins"></i>
+        <p
+          style={{
+            fontWeight: "400",
+            fontSize: "14px",
+            lineHeight: "15px"
+          }}
+        >
+          Nothing here! Make one transaction :)
+        </p>
+      </Page>
     ) : (
-      <div>
-        <EmptyRow />
-        <Row className="algorand-history-row">
-          <Col>
-            <i className="fas fa-coins"></i>
-            <p
-              style={{
-                fontWeight: "400",
-                fontSize: "14px",
-                lineHeight: "15px"
-              }}
-            >
-              Nothing here! Make one transaction :)
-            </p>
-          </Col>
-        </Row>
-        <EmptyRow />
-      </div>
+      <Page>
+        <Spinner animation="border" />
+      </Page>
     )}
   </div>
 );

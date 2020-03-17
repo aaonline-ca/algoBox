@@ -8,7 +8,7 @@ import { DataContext } from "../../utils/DataProvider";
 const History = props => {
   const ctx = useContext(DataContext);
 
-  const [txs, setTxs] = useState([]);
+  const [txs, setTxs] = useState(null);
 
   useEffect(() => {
     const fn = async () => {

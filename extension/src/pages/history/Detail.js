@@ -17,11 +17,11 @@ const Detail = ({ tx }) => (
             title={tx.url.replace("{txId}", tx.txId)}
             rel="noopener noreferrer"
           >
-            {tx.txId.substr(0, 11)}...
+            {tx.txId.substr(0, 15)}...
           </a>
         </div>
       ) : (
-        <span>{`# ${tx.txId.substr(0, 11)}...`}</span>
+        <span>{`# ${tx.txId.substr(0, 15)}...`}</span>
       )}
     </Col>
     <Col md="3" className="ml-auto pl-0">
