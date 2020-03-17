@@ -12,7 +12,7 @@ const Input = props => {
     setText(text);
 
     if (props.onChange) {
-      const { validate } = props.onChange(text, ref);
+      const { validate } = props.onChange(text, ref, () => setText(""));
 
       if (validate === undefined) {
         target.classList.remove("is-valid");

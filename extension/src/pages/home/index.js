@@ -34,6 +34,7 @@ const AppCardHeader = ({ icon, text }) => (
 );
 
 const Home = props => {
+  const [fn, setFn] = useState(null);
   const [ref, setRef] = useState(null);
   const [password, setPassword] = useState(null);
   const [register, setRegister] = useState(false);
@@ -48,6 +49,8 @@ const Home = props => {
   const ctx = useContext(DataContext);
 
   const reset = () => {
+    setFn(null);
+    setRef(null);
     setRegister(false);
     setPassword(null);
     setDisabled(true);
@@ -95,6 +98,34 @@ const Home = props => {
     }
   };
 
+  const LoginRegister = ({ text, value }) => (
+    <Col
+      className="text-center"
+      style={{ cursor: "pointer" }}
+      onClick={() => {
+        if (fn) fn();
+        setRegister(value);
+      }}
+    >
+      {text}
+    </Col>
+  );
+
+  const LoginRegisterBtn = ({ text, onClick }) => (
+    <MDBBtn
+      style={{
+        margin: "0",
+        paddingLeft: "80px",
+        paddingRight: "80px"
+      }}
+      color="elegant"
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {text}
+    </MDBBtn>
+  );
+
   return (
     <div>
       {ctx.wallet === null ? (
@@ -108,7 +139,8 @@ const Home = props => {
                     value={password}
                     hint="Password"
                     type="password"
-                    onChange={(text, ref) => {
+                    onChange={(text, ref, setText) => {
+                      setFn(setText);
                       setRef(ref);
                       setPassword(text);
                       setDisabled(text ? false : true);
@@ -120,31 +152,9 @@ const Home = props => {
               <Row>
                 <Col>
                   {register ? (
-                    <MDBBtn
-                      style={{
-                        margin: "0",
-                        paddingLeft: "80px",
-                        paddingRight: "80px"
-                      }}
-                      color="elegant"
-                      onClick={onRegister}
-                      disabled={disabled}
-                    >
-                      Register
-                    </MDBBtn>
+                    <LoginRegisterBtn text="Register" onClick={onRegister} />
                   ) : (
-                    <MDBBtn
-                      style={{
-                        margin: "0",
-                        paddingLeft: "80px",
-                        paddingRight: "80px"
-                      }}
-                      color="elegant"
-                      onClick={onLogin}
-                      disabled={disabled}
-                    >
-                      Login
-                    </MDBBtn>
+                    <LoginRegisterBtn text="Login" onClick={onLogin} />
                   )}
                 </Col>
               </Row>
@@ -172,21 +182,9 @@ const Home = props => {
           </Row>
           <Row>
             {register ? (
-              <Col
-                className="text-center"
-                style={{ cursor: "pointer" }}
-                onClick={() => setRegister(false)}
-              >
-                Login to your account
-              </Col>
+              <LoginRegister value={false} text="Login to your account" />
             ) : (
-              <Col
-                className="text-center"
-                style={{ cursor: "pointer" }}
-                onClick={() => setRegister(true)}
-              >
-                Create an account
-              </Col>
+              <LoginRegister value={true} text="Create an account" />
             )}
           </Row>
           <EmptyRow />
