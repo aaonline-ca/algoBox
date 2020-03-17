@@ -34,7 +34,6 @@ const AppCardHeader = ({ icon, text }) => (
 );
 
 const Home = props => {
-  const [fn, setFn] = useState(null);
   const [ref, setRef] = useState(null);
   const [password, setPassword] = useState(null);
   const [register, setRegister] = useState(false);
@@ -48,10 +47,14 @@ const Home = props => {
 
   const ctx = useContext(DataContext);
 
-  const reset = () => {
-    setFn(null);
+  const reset = (value = false) => {
+    if (ref) {
+      ref.classList.remove("is-valid");
+      ref.classList.remove("is-invalid");
+    }
+
     setRef(null);
-    setRegister(false);
+    setRegister(value);
     setPassword(null);
     setDisabled(true);
   };
@@ -102,10 +105,7 @@ const Home = props => {
     <Col
       className="text-center"
       style={{ cursor: "pointer" }}
-      onClick={() => {
-        if (fn) fn();
-        setRegister(value);
-      }}
+      onClick={() => reset(value)}
     >
       {text}
     </Col>
@@ -136,14 +136,14 @@ const Home = props => {
               <Row>
                 <Col>
                   <Input
-                    value={password}
                     hint="Password"
                     type="password"
-                    onChange={(text, ref, setText) => {
-                      setFn(setText);
+                    value={password}
+                    setValue={setPassword}
+                    onChange={(ref, text) => {
                       setRef(ref);
-                      setPassword(text);
-                      setDisabled(text ? false : true);
+                      setDisabled(!text);
+
                       return { validate: undefined };
                     }}
                   />

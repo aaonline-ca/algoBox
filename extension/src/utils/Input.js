@@ -6,13 +6,12 @@ import { DataConsumer } from "./DataProvider";
 
 const Input = props => {
   const [ref, setRef] = useState(null);
-  const [text, setText] = useState(props.value ? props.value : "");
 
   const onChange = (target, text) => {
-    setText(text);
+    props.setValue(text);
 
     if (props.onChange) {
-      const { validate } = props.onChange(text, ref, () => setText(""));
+      const { validate } = props.onChange(ref, text);
 
       if (validate === undefined) {
         target.classList.remove("is-valid");
@@ -33,7 +32,7 @@ const Input = props => {
         <MDBInput
           inputRef={setRef}
           type={props.type ? props.type : "text"}
-          value={text}
+          value={props.value ? props.value : ""}
           hint={props.hint}
           label={props.label}
           onChange={e => onChange(e.target, e.target.value)}
