@@ -21,6 +21,7 @@ const DataProvider = ({ children }) => {
   const [txDate, setTxDate] = useState(null);
   const [memo, setMemo] = useState(null);
   const [txs, setTxs] = useState({});
+  const [disabled, setDisabled] = useState(false);
 
   useEffect(() => {
     const fn = async () => {
@@ -54,7 +55,9 @@ const DataProvider = ({ children }) => {
         memo,
         setMemo,
         txs,
-        setTxs
+        setTxs,
+        disabled,
+        setDisabled
       }}
     >
       {children}

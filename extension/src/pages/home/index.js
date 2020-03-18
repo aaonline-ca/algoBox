@@ -101,7 +101,6 @@ const Home = props => {
         ctx.network,
         Session.wallets[0].address
       );
-      console.log(account);
       ctx.setAccount(account);
 
       reset();
