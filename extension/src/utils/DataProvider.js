@@ -6,7 +6,7 @@ import * as config from "../config.json";
 
 const DataContext = React.createContext();
 
-const DataProvider = props => {
+const DataProvider = ({ children }) => {
   const [page, setPage] = useState("home");
   const [input, setInput] = useState({});
   const [app, setApp] = useState({});
@@ -20,7 +20,6 @@ const DataProvider = props => {
   const [txDate, setTxDate] = useState(null);
   const [memo, setMemo] = useState(null);
   const [txs, setTxs] = useState({});
-  const [worker, setWorker] = useState(null);
 
   useEffect(() => {
     const fn = async () => {
@@ -52,12 +51,10 @@ const DataProvider = props => {
         memo,
         setMemo,
         txs,
-        setTxs,
-        worker,
-        setWorker
+        setTxs
       }}
     >
-      {props.children}
+      {children}
     </DataContext.Provider>
   );
 };

@@ -12,10 +12,10 @@ import Logo from "../../assets/logo_128.png";
 const TransferAmount = props => {
   const ctx = useContext(DataContext);
 
-  const onChangeAmount = amount => {
+  const onChangeAmount = (ref, amount) => {
     if (amount === null || amount === undefined || amount.trim().length === 0) {
       ctx.setValidation(validation => {
-        return { ...validation, amount: false };
+        return { ...validation, amount: false, amountValue: null };
       });
       return {};
     }
@@ -40,8 +40,9 @@ const TransferAmount = props => {
       <Row className="algorand-transferamount-footer">
         <Col xs="5" md="5" className="align-self-center">
           <Input
+            value={ctx.validation ? ctx.validation.amountValue : null}
+            setValue={() => {}}
             hint="0.00"
-            type="text"
             onChange={onChangeAmount}
             cls="algorand-transferto-input"
           />

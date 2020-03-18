@@ -1,9 +1,10 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 
-import { MDBBtn } from "mdbreact";
-import { Row, Col } from "react-bootstrap";
+import { MDBBtn, MDBIcon } from "mdbreact";
+import { Row, Col, Toast, OverlayTrigger, Tooltip } from "react-bootstrap";
 
 import Algorand from "../../utils/Algorand";
+import Worker from "../../utils/Worker";
 import { DataContext } from "../../utils/DataProvider";
 import Input from "../../utils/Input";
 import Logo from "../../assets/logo_128.png";
@@ -13,21 +14,41 @@ import * as config from "../../config.json";
 
 import "./TransferTo.css";
 
+const ViewHistory = () => {
+  const ctx = useContext(DataContext);
+
+  return (
+    <span style={{ float: "right" }}>
+      <span className="algorand-transferto-history-mock">[&nbsp;</span>
+      <span
+        title="See all transactions made in this session"
+        className="algorand-transferto-history"
+        onClick={() => ctx.setPage("history")}
+      >
+        View History
+      </span>
+      <span className="algorand-transferto-history-mock">&nbsp;]</span>
+    </span>
+  );
+};
+
 const TransferTo = props => {
   const ctx = useContext(DataContext);
 
+  const [show, setShow] = useState(false);
+
   useEffect(() => {
     Algorand.getAccount(ctx.network, ctx.wallet.address).then(ctx.setAccount);
-  }, [ctx.network]);
+  }, [ctx.setAccount, ctx.network, ctx.wallet.address]);
 
-  const onChangeAddress = address => {
+  const onChangeAddress = (ref, address) => {
     if (
       address === null ||
       address === undefined ||
       address.trim().length === 0
     ) {
       ctx.setValidation(validation => {
-        return { ...validation, toAddress: false };
+        return { ...validation, toAddress: false, toAddressValue: null };
       });
       return {};
     }
@@ -42,11 +63,6 @@ const TransferTo = props => {
     return { validate };
   };
 
-  const onChangeMemo = memo => {
-    ctx.setMemo(memo);
-    return {};
-  };
-
   const transfer = async e => {
     ctx.setDisabled(true);
 
@@ -59,20 +75,16 @@ const TransferTo = props => {
         url: config.algorand.explorer[ctx.network]
       };
 
-      if (
-        ctx.memo !== null &&
-        ctx.memo !== undefined &&
-        ctx.memo.trim().length > 0
-      ) {
+      if (ctx.memo && ctx.memo.trim().length > 0) {
         txParams.memo = ctx.memo;
       }
 
       console.log(txParams);
 
-      // Send the transaction to the worker, be processed.
-      ctx.worker.postMessage({
+      // Send the transaction to the worker, to be processed.
+      await Worker.sendTransaction({
+        txParams,
         network: ctx.network,
-        txParams: txParams,
         secretKey: ctx.wallet.sk
       });
 
@@ -90,6 +102,20 @@ const TransferTo = props => {
     ctx.setDisabled(false);
   };
 
+  const copyToClipboard = val => {
+    const dummy = document.createElement("input");
+    dummy.setAttribute("id", "dummy_id");
+    document.body.appendChild(dummy);
+
+    document.getElementById("dummy_id").value = val;
+    dummy.select();
+
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+
+    setShow(true);
+  };
+
   return (
     <div>
       <Row>
@@ -97,22 +123,36 @@ const TransferTo = props => {
           <div>
             <p className="algorand-transferto-balance-p">
               Address:
-              <span style={{ float: "right" }}>
-                <span className="algorand-transferto-history-mock">
-                  [&nbsp;
-                </span>
-                <span
-                  title="See all transactions made in this session"
-                  className="algorand-transferto-history"
-                  onClick={() => ctx.setPage("history")}
-                >
-                  View History
-                </span>
-                <span className="algorand-transferto-history-mock">
-                  &nbsp;]
-                </span>
-              </span>
+              <ViewHistory />
               <span>{ctx.wallet ? ctx.wallet.address : null}</span>
+              <OverlayTrigger
+                key="top"
+                placement="top"
+                overlay={<Tooltip id="tooltip-top">Copy address</Tooltip>}
+              >
+                <MDBIcon
+                  far
+                  icon="clone"
+                  style={{
+                    float: "right",
+                    marginTop: "-13px",
+                    fontSize: "12px",
+                    cursor: "pointer",
+                    position: "relative"
+                  }}
+                  onClick={() => copyToClipboard(ctx.wallet.address)}
+                />
+              </OverlayTrigger>
+              <Toast
+                onClose={() => setShow(false)}
+                show={show}
+                delay={1000}
+                autohide
+              >
+                <Toast.Header>
+                  <strong className="mr-auto">Copied!</strong>
+                </Toast.Header>
+              </Toast>
             </p>
             <p className="algorand-transferto-balance-p">
               Balance:{" "}
@@ -132,13 +172,17 @@ const TransferTo = props => {
         <Col className="align-self-center">
           <form className="algorand-transferto-form" noValidate>
             <Input
+              value={ctx.validation ? ctx.validation.toAddressValue : null}
+              setValue={() => {}}
               label="To Address:"
               onChange={onChangeAddress}
               cls="algorand-transferto-input"
             />
             <Input
+              value={ctx.memo}
+              setValue={ctx.setMemo}
               label="Memo:"
-              onChange={onChangeMemo}
+              onChange={() => {}}
               cls="algorand-transferto-input"
             />
           </form>

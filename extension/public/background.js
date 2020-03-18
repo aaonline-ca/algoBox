@@ -91,14 +91,16 @@ const Process = {
     // Operations based on cmd.
     switch (message.cmd) {
       default:
-      case "triggerLogin":
-        Process.triggerLogin();
+      case "sendTransaction":
+        Process.sendTransaction(message.args);
         break;
     }
-  }
+  },
+
+  sendTransaction: params => {}
 };
 
-// From the algoBox content/popup script.
+// From the algoBox popup script.
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   Process.main(message, sender, sendResponse);
   return true;

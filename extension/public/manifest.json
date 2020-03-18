@@ -12,7 +12,9 @@
     "activeTab",
     "webRequest",
     "webRequestBlocking",
-    "storage"
+    "storage",
+    "clipboardWrite",
+    "clipboardRead"
   ],
   "icons": {
     "128": "logo_128.png"
@@ -28,7 +30,7 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["content.js"],
+      "js": [],
       "css": [],
       "run_at": "document_start"
     }

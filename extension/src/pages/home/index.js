@@ -49,8 +49,8 @@ const Home = props => {
 
   const reset = (value = false) => {
     if (ref) {
-      ref.classList.remove("is-valid");
       ref.classList.remove("is-invalid");
+      ref.classList.remove("is-valid");
     }
 
     setRef(null);
@@ -88,9 +88,6 @@ const Home = props => {
 
   const onLogin = async () => {
     try {
-      ref.classList.add("is-invalid");
-      ref.focus();
-
       await Session.login(password);
       ctx.setWallet(Session.wallets[0]);
       reset();
@@ -143,8 +140,7 @@ const Home = props => {
                     onChange={(ref, text) => {
                       setRef(ref);
                       setDisabled(!text);
-
-                      return { validate: undefined };
+                      return {};
                     }}
                   />
                 </Col>
