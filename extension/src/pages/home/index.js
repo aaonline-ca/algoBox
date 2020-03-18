@@ -39,10 +39,16 @@ const Home = props => {
   const [register, setRegister] = useState(false);
   const [disabled, setDisabled] = useState(true);
 
+  const logout = () => {
+    ctx.setWallet(null);
+    ctx.setAccount(null);
+    ctx.setTxs({});
+  };
+
   const items = [
     { icon: "home", text: "Transfer", page: "transfer" },
     { icon: "lock", text: "History", page: "history" },
-    { icon: "times", text: "Logout", action: () => ctx.setWallet(null) }
+    { icon: "times", text: "Logout", action: logout }
   ];
 
   const ctx = useContext(DataContext);
@@ -90,6 +96,14 @@ const Home = props => {
     try {
       await Session.login(password);
       ctx.setWallet(Session.wallets[0]);
+
+      const account = await Algorand.getAccount(
+        ctx.network,
+        Session.wallets[0].address
+      );
+      console.log(account);
+      ctx.setAccount(account);
+
       reset();
     } catch (err) {
       console.log(err);

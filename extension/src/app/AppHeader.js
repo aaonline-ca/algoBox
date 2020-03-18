@@ -7,6 +7,7 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 
 import { AppCard, AppCardHeader } from "../pages/home";
+import Algorand from "../utils/Algorand";
 import { DataContext } from "../utils/DataProvider";
 
 import LogoImg from "../assets/logo_128.png";
@@ -31,6 +32,11 @@ const Header = () => {
 
   const classes = useStyles();
 
+  const onNetworkChange = network => {
+    ctx.setNetwork(network);
+    Algorand.getAccount(network, ctx.wallet.address).then(ctx.setAccount);
+  };
+
   return (
     <Row>
       <Col xs="auto" className="align-self-center">
@@ -45,7 +51,7 @@ const Header = () => {
             <FormControl className={classes.formControl}>
               <Select
                 value={ctx.network}
-                onChange={e => ctx.setNetwork(e.target.value)}
+                onChange={e => onNetworkChange(e.target.value)}
               >
                 {ctx.networks.map((value, index) => (
                   <MenuItem key={index} value={value}>

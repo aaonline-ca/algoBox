@@ -11,6 +11,7 @@ const DataProvider = ({ children }) => {
   const [input, setInput] = useState({});
   const [app, setApp] = useState({});
   const [wallet, setWallet] = useState(null);
+  const [account, setAccount] = useState(null);
   const [network, setNetwork] = useState("testnet");
   const [networks] = useState(config.algorand.networks);
   const [validation, setValidation] = useState({
@@ -43,6 +44,8 @@ const DataProvider = ({ children }) => {
         setWallet,
         network,
         setNetwork,
+        account,
+        setAccount,
         networks,
         validation,
         setValidation,

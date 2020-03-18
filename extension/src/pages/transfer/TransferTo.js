@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { MDBBtn, MDBIcon } from "mdbreact";
 import { Row, Col, Toast, OverlayTrigger, Tooltip } from "react-bootstrap";
@@ -36,10 +36,6 @@ const TransferTo = props => {
   const ctx = useContext(DataContext);
 
   const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    Algorand.getAccount(ctx.network, ctx.wallet.address).then(ctx.setAccount);
-  }, [ctx.setAccount, ctx.network, ctx.wallet.address]);
 
   const onChangeAddress = (ref, address) => {
     if (
@@ -147,6 +143,7 @@ const TransferTo = props => {
                 onClose={() => setShow(false)}
                 show={show}
                 delay={1000}
+                style={{ position: "absolute", zIndex: 100 }}
                 autohide
               >
                 <Toast.Header>
@@ -157,7 +154,6 @@ const TransferTo = props => {
             <p className="algorand-transferto-balance-p">
               Balance:{" "}
               {ctx.account ? ctx.account.amount / Math.pow(10, 6) : "0.00"}
-              &nbsp;
               <img src={Logo} alt="Logo" width="25px" height="25px" />
             </p>
           </div>
