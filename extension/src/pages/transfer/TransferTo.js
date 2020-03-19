@@ -36,6 +36,7 @@ const TransferTo = props => {
   const ctx = useContext(DataContext);
 
   const [show, setShow] = useState(false);
+  const [error, setError] = useState("");
 
   const onChangeAddress = (ref, address) => {
     if (
@@ -64,24 +65,23 @@ const TransferTo = props => {
 
     try {
       // Set the tx params.
-      let txParams = {
+      const txParams = {
         to: ctx.validation.toAddressValue,
         amount: ctx.validation.amountValue,
         date: ctx.txDate ? ctx.txDate : new Date(),
         url: config.algorand.explorer[ctx.network]
       };
-
       if (ctx.memo && ctx.memo.trim().length > 0) {
         txParams.memo = ctx.memo;
       }
 
-      console.log(txParams);
+      const key = Object.values(JSON.parse(JSON.stringify(ctx.wallet.sk)));
 
       // Send the transaction to the worker, to be processed.
       await Worker.sendTransaction({
         txParams,
         network: ctx.network,
-        secretKey: ctx.wallet.sk
+        secretKey: key.toString()
       });
 
       // Reset validation object.
@@ -92,7 +92,8 @@ const TransferTo = props => {
 
       ctx.setPage("history");
     } catch (err) {
-      alert(err.message);
+      setError("Failed to send transaction! Try again later");
+      setShow(true);
     }
 
     ctx.setDisabled(false);
@@ -109,6 +110,7 @@ const TransferTo = props => {
     document.execCommand("copy");
     document.body.removeChild(dummy);
 
+    setError("Copied!");
     setShow(true);
   };
 
@@ -142,12 +144,12 @@ const TransferTo = props => {
               <Toast
                 onClose={() => setShow(false)}
                 show={show}
-                delay={1000}
+                delay={1500}
                 style={{ position: "absolute", zIndex: 100 }}
                 autohide
               >
                 <Toast.Header>
-                  <strong className="mr-auto">Copied!</strong>
+                  <strong className="mr-auto">{error}</strong>
                 </Toast.Header>
               </Toast>
             </p>

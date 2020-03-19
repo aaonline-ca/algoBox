@@ -67,12 +67,12 @@ const Algorand = {
   },
 
   createTransaction: async (network, { to, amount, memo, date }) => {
-    let tx = await Algorand.getClient(network).getTransactionParams();
+    const tx = await Algorand.getClient(network).getTransactionParams();
     tx.to = to;
     tx.amount = Number(amount) * Math.pow(10, 6); // convert to micro-algos.
     tx.genesisHash = tx.genesishashb64;
 
-    const now = new Date().getTime();
+    const now = Date.now();
     let lastRound = tx.lastRound;
 
     // Transaction to be processed in the future.
@@ -95,7 +95,7 @@ const Algorand = {
     return tx;
   },
 
-  sendTransaction: async (network, tx, secretKey) => {
+  sendTransaction: async ({ network, tx, secretKey }) => {
     try {
       let txParams = await Algorand.getClient(network).getTransactionParams();
       let lastRound = txParams.lastRound;
@@ -120,7 +120,7 @@ const Algorand = {
       console.log("Failed to make an algorand transaction!");
     }
 
-    return await Algorand.sendTransaction(network, tx, secretKey);
+    return await Algorand.sendTransaction({ network, tx, secretKey });
   },
 
   getTransactions: async (network, address) => {

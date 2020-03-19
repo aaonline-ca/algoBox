@@ -1,4 +1,6 @@
-/*global chrome*/
+/*global chrome,localStorage*/
+
+import Algorand from "../utils/Algorand";
 
 const Approval = {
   key: "algoBox.approval",
@@ -44,42 +46,11 @@ const Callbacks = {
     Callbacks.callbacks[id] = callback;
   },
 
-  sendResponse: (msgId, type, msg, cmd, args) => {
-    if (Callbacks.callbacks[msgId] !== undefined) {
-      Callbacks.callbacks[msgId]({
-        type: type,
-        result: msg
-      });
+  sendResponse: (msgId, type, result) => {
+    if (Callbacks.callbacks[msgId]) {
+      Callbacks.callbacks[msgId]({ type, result });
 
       delete Callbacks.callbacks[msgId];
-    }
-  },
-
-  onMessage: response => {
-    console.log(response);
-
-    if (
-      response.id !== undefined &&
-      Callbacks.callbacks[response.id] !== undefined
-    ) {
-      if (Callbacks.callbacks[response.id].resolve !== undefined) {
-        if (response.type === "success") {
-          Callbacks.callbacks[response.id].resolve(response.result);
-        } else {
-          Callbacks.callbacks[response.id].reject(response.result);
-        }
-
-        delete Callbacks.callbacks[response.id];
-        return;
-      }
-
-      Callbacks.sendResponse(
-        response.id,
-        response.type,
-        response.result,
-        response.cmd,
-        response.args
-      );
     }
   }
 };
@@ -88,20 +59,53 @@ const Process = {
   main: (message, sender, sendResponse) => {
     console.log(message);
 
+    // Register the callback for the response from the host.
+    Callbacks.registerCallback(message.msgId, sendResponse);
+
+    if (message.cmd !== "approve") {
+      // Not approved.
+      if (!Approval.isApproved(message.args.host)) {
+        return Callbacks.sendResponse(
+          message.msgId,
+          "failure",
+          "Host not approved"
+        );
+      }
+    }
+
     // Operations based on cmd.
     switch (message.cmd) {
       default:
       case "sendTransaction":
-        Process.sendTransaction(message.args);
-        break;
+        return Process.sendTransaction(message.msgId, message.args);
+
+      case "pendingTransactions":
+        return Process.pendingTransactions(message.args);
     }
   },
 
-  sendTransaction: params => {}
+  sendTransaction: (msgId, params) => {
+    // de-serialize.
+    params.txParams.date = new Date(params.txParams.date);
+    params.secretKey = new Uint8Array(params.secretKey.split(","));
+
+    Algorand.createTransaction(params.network, params.txParams)
+      .then(tx => Algorand.sendTransaction({ ...params, tx }))
+      .then(() => Callbacks.sendResponse(msgId, "success", params))
+      .catch(err => {
+        console.log(err);
+        Callbacks.sendResponse(msgId, "failure", params);
+      });
+
+    return true;
+  },
+
+  pendingTransactions: params => {
+    return true;
+  }
 };
 
 // From the algoBox popup script.
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  Process.main(message, sender, sendResponse);
-  return true;
+  return Process.main(message, sender, sendResponse);
 });

@@ -22,7 +22,11 @@ const ScheduleDate = () => {
 
   return (
     <>
-      <div className="custom-control custom-switch" onClick={onClick}>
+      <div
+        className="custom-control custom-switch"
+        onClick={onClick}
+        disabled={ctx.disabled}
+      >
         <input
           type="checkbox"
           className="custom-control-input"

@@ -6,11 +6,11 @@ const callExtension = (cmd, args) => {
       .toString(36)
       .substring(7);
 
-    args = args === undefined || args === null ? {} : args;
+    args = args || {};
     args.host = window.location.hostname;
 
     chrome.runtime.sendMessage({ msgId, cmd, args }, response => {
-      console.log(response);
+      console.log("background response", response);
 
       if (!response) {
         reject(null);
@@ -25,7 +25,11 @@ const callExtension = (cmd, args) => {
 
 const Worker = {
   sendTransaction: async message => {
-    return await callExtension("sendTransaction", message);
+    try {
+      return await callExtension("sendTransaction", message);
+    } catch (err) {
+      throw new Error("Failed");
+    }
   }
 };
 

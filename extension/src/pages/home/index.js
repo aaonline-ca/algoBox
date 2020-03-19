@@ -103,6 +103,8 @@ const Home = props => {
       );
       ctx.setAccount(account);
 
+      const y = JSON.stringify(Session.wallets[0].sk);
+
       reset();
     } catch (err) {
       console.log(err);

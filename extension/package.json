@@ -1,10 +1,10 @@
 {
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-app-rewired start",
     "prebuild": "./scripts/prebuild.sh",
-    "build": "INLINE_RUNTIME_CHUNK=false react-scripts build",
+    "build": "INLINE_RUNTIME_CHUNK=false react-app-rewired build",
     "postbuild": "node scripts/postbuild.js && cd build && zip -r ../../algoBox.zip *",
-    "test": "react-scripts test",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "dependencies": {
@@ -26,5 +26,10 @@
   },
   "engines": {
     "node": ">=12.0.0"
+  },
+  "devDependencies": {
+    "ignore-loader": "^0.1.2",
+    "null-loader": "^3.0.0",
+    "react-app-rewired": "^2.1.5"
   }
 }
