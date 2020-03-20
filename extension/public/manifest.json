@@ -30,7 +30,7 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": [],
+      "js": ["content.js"],
       "css": [],
       "run_at": "document_start"
     }
@@ -38,5 +38,6 @@
   "background": {
     "persistent": true,
     "scripts": ["static/js/background.js"]
-  }
+  },
+  "web_accessible_resources": ["algobox.js"]
 }

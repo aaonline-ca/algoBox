@@ -28,20 +28,13 @@ const algoBoxCallback = {
         .toString(36)
         .substring(7);
 
-      algoBoxCallback.registerCallback(msgId, {
-        resolve: resolve,
-        reject: reject
-      });
+      algoBoxCallback.registerCallback(msgId, { resolve, reject });
 
-      args = args === undefined || args === null ? {} : args;
+      args = args || {};
       args.host = window.location.hostname;
 
       const event = new CustomEvent("algoBox.api.request", {
-        detail: {
-          msgId: msgId,
-          cmd: cmd,
-          args: args
-        },
+        detail: { msgId, cmd, args },
         bubbles: true
       });
 
