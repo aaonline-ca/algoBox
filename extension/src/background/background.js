@@ -136,6 +136,8 @@ const Process = {
       },
       false
     );
+
+    return true;
   },
 
   sendTransaction: (msgId, params) => {

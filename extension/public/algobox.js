@@ -2,10 +2,7 @@ const algoBoxCallback = {
   callbacks: {},
 
   registerCallback: (msgId, callback) => {
-    algoBoxCallback.callbacks[msgId] = {
-      resolve: callback.resolve,
-      reject: callback.reject
-    };
+    algoBoxCallback.callbacks[msgId] = callback;
   },
 
   sendCallback: (msgId, response) => {
