@@ -49,6 +49,26 @@ const Home = props => {
     });
   }, [ctx.setWallet]);
 
+  const download = () => {
+    const wallet = Algorand.createWallet();
+
+    const ele = document.createElement("a");
+    ele.setAttribute(
+      "href",
+      "data:text/plain;charset=utf-8," + encodeURIComponent(wallet.mnemonic)
+    );
+    ele.setAttribute("download", `algorand-wallet-${wallet.address}.txt`);
+    ele.style.display = "none";
+    document.body.appendChild(ele);
+
+    ele.click();
+
+    document.body.removeChild(ele);
+
+    ctx.setWallet(wallet);
+    return wallet;
+  };
+
   const logout = async () => {
     ctx.setWallet(null);
     ctx.setAccount(null);
@@ -70,30 +90,20 @@ const Home = props => {
   };
 
   const items = [
-    { icon: "home", text: "Transfer", page: "transfer" },
-    { icon: "lock", text: "History", page: "history" },
+    { icon: "exchange-alt", text: "Transfer", page: "transfer" },
+    {
+      icon: "wallet",
+      text: "New Wallet",
+      action: () => Session.register(download())
+    },
+    { icon: "history", text: "History", page: "history" },
     { icon: "times", text: "Logout", action: logout }
   ];
 
   const onRegister = async () => {
     try {
-      const wallet = Algorand.createWallet();
-
-      const ele = document.createElement("a");
-      ele.setAttribute(
-        "href",
-        "data:text/plain;charset=utf-8," + encodeURIComponent(wallet.mnemonic)
-      );
-      ele.setAttribute("download", `algorand-wallet-${wallet.address}.txt`);
-      ele.style.display = "none";
-      document.body.appendChild(ele);
-
-      ele.click();
-
-      document.body.removeChild(ele);
-
-      Session.register(password, wallet);
-      ctx.setWallet(wallet);
+      const wallet = download();
+      Session.register(wallet, password);
       reset();
     } catch (err) {
       console.log(err);

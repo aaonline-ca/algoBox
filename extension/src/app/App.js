@@ -10,7 +10,7 @@ import appCss from "../index.module.css";
 import config from "../config.json";
 
 const App = props => (
-  <Card style={{ width: "300px", userSelect: "none" }}>
+  <Card style={{ width: "330px", userSelect: "none" }}>
     <AppHeader />
     <AppBody />
     <Card.Header

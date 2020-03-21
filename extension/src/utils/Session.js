@@ -37,6 +37,14 @@ const Session = {
     return true;
   },
 
+  setAccount: address => {
+    const wallet = Session.wallets.filter(e => e.address === address)[0];
+
+    Session.updateDetails("wallet", address);
+
+    return wallet;
+  },
+
   updateDetails: async (key, value) => {
     const user = await Cache.get(Session.key);
     if (!user) {
@@ -51,7 +59,7 @@ const Session = {
     if (key === "wallet") {
       // Find the wallet, and then bring it to front.
       user.unlocked.wallets.sort((x, y) =>
-        x === value ? -1 : y === value ? 1 : 0
+        x.address === value ? -1 : y.address === value ? 1 : 0
       );
     } else {
       user.unlocked[key] = value;
@@ -85,14 +93,22 @@ const Session = {
     }
   },
 
-  register: async (password, wallet) => {
+  register: async (wallet, password = null) => {
     try {
-      const wallets = [wallet];
+      if (password) {
+        const wallets = [wallet];
+        const json = JSON.stringify(wallets);
+        const encrypted = Crypto.AES.encrypt(json, password).toString();
 
-      const json = JSON.stringify(wallets);
-      const encrypted = Crypto.AES.encrypt(json, password).toString();
+        await Session.createSession({ wallets: encrypted }, wallets);
+      } else {
+        const user = await Cache.get(Session.key);
 
-      await Session.createSession({ wallets: encrypted }, wallets);
+        const wallets = user.unlocked.wallets;
+        wallets.push(wallet);
+
+        await Session.createSession(user, wallets);
+      }
     } catch (err) {
       throw err;
     }
@@ -118,8 +134,12 @@ const Session = {
 
   createSession: async (user, wallets) => {
     for (let i = 0; i < wallets.length; ++i) {
-      wallets[i].sk = Object.values(JSON.parse(JSON.stringify(wallets[i].sk)));
-      wallets[i].sk = wallets[i].sk.toString();
+      if (typeof wallets[i].sk !== "string") {
+        wallets[i].sk = Object.values(
+          JSON.parse(JSON.stringify(wallets[i].sk))
+        );
+        wallets[i].sk = wallets[i].sk.toString();
+      }
     }
 
     user.unlocked = { wallets };

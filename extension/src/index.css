@@ -16,6 +16,10 @@ body {
   margin: 0px;
 }
 
+.algobox-appcard-active {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
 .md-form {
   margin-bottom: 0.85rem !important;
 }
