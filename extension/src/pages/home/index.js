@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 
 import cx from "classnames";
 import { MDBBtn, MDBIcon } from "mdbreact";
@@ -39,19 +39,23 @@ const Home = props => {
   const [register, setRegister] = useState(false);
   const [disabled, setDisabled] = useState(true);
 
-  const logout = () => {
+  const ctx = useContext(DataContext);
+
+  useEffect(() => {
+    Session.isLoggedIn().then(isLoggedIn => {
+      if (isLoggedIn) {
+        ctx.setWallet(Session.wallets[0]);
+      }
+    });
+  }, [ctx.setWallet]);
+
+  const logout = async () => {
     ctx.setWallet(null);
     ctx.setAccount(null);
     ctx.setTxs({});
+
+    await Session.logout();
   };
-
-  const items = [
-    { icon: "home", text: "Transfer", page: "transfer" },
-    { icon: "lock", text: "History", page: "history" },
-    { icon: "times", text: "Logout", action: logout }
-  ];
-
-  const ctx = useContext(DataContext);
 
   const reset = (value = false) => {
     if (ref) {
@@ -64,6 +68,12 @@ const Home = props => {
     setPassword(null);
     setDisabled(true);
   };
+
+  const items = [
+    { icon: "home", text: "Transfer", page: "transfer" },
+    { icon: "lock", text: "History", page: "history" },
+    { icon: "times", text: "Logout", action: logout }
+  ];
 
   const onRegister = async () => {
     try {

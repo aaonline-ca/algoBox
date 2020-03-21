@@ -59,5 +59,19 @@ const algoBox = {
     } catch (err) {
       throw err;
     }
+  },
+
+  transfer: async (to, amount) => {
+    try {
+      return await algoBoxCallback.callExtension("transfer", {
+        txParams: {
+          to,
+          amount,
+          date: Date.now().toString()
+        }
+      });
+    } catch (err) {
+      throw err;
+    }
   }
 };

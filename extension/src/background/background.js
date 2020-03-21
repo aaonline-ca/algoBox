@@ -2,6 +2,8 @@
 
 import Algorand from "../utils/Algorand";
 
+import * as config from "../config.json";
+
 const Approval = {
   key: "algoBox.approval",
 
@@ -77,67 +79,59 @@ const Process = {
     switch (message.cmd) {
       default:
       case "approve":
-        return Process.approve(message.msgId, message.args);
+        Process.approve(message.msgId, message.args);
+        break;
+
+      case "transfer":
+        Process.transfer(message.msgId, message.args);
+        break;
 
       case "sendTransaction":
-        return Process.sendTransaction(message.msgId, message.args);
+        Process.sendTransaction(message.msgId, message.args);
+        break;
 
       case "pendingTransactions":
-        return Process.pendingTransactions(message.args);
+        Process.pendingTransactions(message.args);
+        break;
     }
+
+    return true;
+  },
+
+  transfer: (msgId, args) => {
+    popup(
+      "approve.html",
+      msgId,
+      _popup => {
+        _popup.$("#algobox-transfer-to").html(args.to);
+        _popup.$("#algobox-transfer-amount").html(args.amount);
+        _popup.$("#card-algobox-url").html(args.host);
+      },
+      () => {
+        const network = "";
+        args.secretKey = "";
+        args.network = network;
+        args.txParams.url = config.algorand.explorer[network];
+
+        Process.sendTransaction(msgId, args);
+      }
+    );
   },
 
   approve: (msgId, args) => {
-    const popup = window.open(
+    popup(
       "connect.html",
-      "extension_popup",
-      "width=340,height=600,top=25,left=25,toolbar=no,location=no,scrollbars=no,resizable=no,status=no,menubar=no,directories=no"
-    );
-
-    const popupConnectCloseHandler = () => {
-      Callbacks.sendResponse(
-        msgId,
-        "failure",
-        "User has rejected the connect request"
-      );
-    };
-    popup.addEventListener("beforeunload", popupConnectCloseHandler);
-
-    popup.addEventListener(
-      "load",
-      () => {
-        popup.$("#host-title").html(args.title);
-        popup.$(".title-letter").html(args.title[0].toUpperCase());
-        popup.$("#connect-host").html(args.host);
-
-        // If the user rejects it, send back the failure message.
-        popup.$("#algobox-connect-cancel").on("click", () => {
-          Callbacks.sendResponse(
-            msgId,
-            "failure",
-            "User has rejected the connect request"
-          );
-          popup.close();
-        });
-        popup.$("#algobox-connect-confirm").on("click", () => {
-          // Cancel the popup event handler.
-          popup.removeEventListener(
-            "beforeunload",
-            popupConnectCloseHandler,
-            false
-          );
-
-          // User has approved the host.
-          Approval.approve(args.host);
-          Callbacks.sendResponse(msgId, "success", "Host is approved");
-
-          popup.close();
-        });
+      msgId,
+      _popup => {
+        _popup.$("#host-title").html(args.title);
+        _popup.$(".title-letter").html(args.title[0].toUpperCase());
+        _popup.$("#connect-host").html(args.host);
       },
-      false
+      () => {
+        Approval.approve(args.host);
+        Callbacks.sendResponse(msgId, "success", "Host is approved");
+      }
     );
-
-    return true;
   },
 
   sendTransaction: (msgId, params) => {
@@ -148,17 +142,48 @@ const Process = {
     Algorand.createTransaction(params.network, params.txParams)
       .then(tx => Algorand.sendTransaction({ ...params, tx }))
       .then(() => Callbacks.sendResponse(msgId, "success", params))
-      .catch(err => {
-        console.log(err);
-        Callbacks.sendResponse(msgId, "failure", params);
-      });
-
-    return true;
+      .catch(err => Callbacks.sendResponse(msgId, "failure", err));
   },
 
   pendingTransactions: params => {
     return true;
   }
+};
+
+const popup = (page, msgId, replaceFn, callback) => {
+  const popup = window.open(
+    page,
+    "extension_popup",
+    "width=340,height=600,top=25,left=25,toolbar=no,location=no,scrollbars=no,resizable=no,status=no,menubar=no,directories=no"
+  );
+
+  const popupCloseHandler = () => {
+    Callbacks.sendResponse(msgId, "failure", "User has rejected the request");
+  };
+  popup.addEventListener("beforeunload", popupCloseHandler);
+
+  popup.addEventListener(
+    "load",
+    () => {
+      replaceFn(popup);
+
+      // If the user rejects it, send back the failure message.
+      popup.$("#algobox-cancel").on("click", () => {
+        popupCloseHandler();
+        popup.close();
+      });
+
+      popup.$("#algobox-confirm").on("click", () => {
+        // Cancel the popup event handler.
+        popup.removeEventListener("beforeunload", popupCloseHandler, false);
+
+        callback();
+
+        popup.close();
+      });
+    },
+    false
+  );
 };
 
 // From the algoBox popup script.
