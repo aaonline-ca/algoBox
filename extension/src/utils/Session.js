@@ -21,7 +21,7 @@ const Session = {
   isLoggedIn: async () => {
     const user = await Cache.get(Session.key);
     if (!user) {
-      return false;
+      return null;
     }
 
     // See if there is an unlocked session. If yes, use that.
@@ -30,11 +30,11 @@ const Session = {
       !user.unlocked.wallets ||
       user.unlocked.wallets.length === 0
     ) {
-      return false;
+      return null;
     }
 
     Session.setWallets(user.unlocked.wallets);
-    return true;
+    return user.unlocked.network;
   },
 
   setAccount: address => {
@@ -84,6 +84,7 @@ const Session = {
 
           // Create an unlocked-session.
           await Session.createSession(user, wallets);
+          return user.unlocked.network;
         }
       } catch (err) {
         throw new Error("Incorrect password!");
@@ -93,21 +94,21 @@ const Session = {
     }
   },
 
-  register: async (wallet, password = null) => {
+  register: async (wallet, network, password = null) => {
     try {
       if (password) {
         const wallets = [wallet];
         const json = JSON.stringify(wallets);
         const encrypted = Crypto.AES.encrypt(json, password).toString();
 
-        await Session.createSession({ wallets: encrypted }, wallets);
+        await Session.createSession({ wallets: encrypted }, wallets, network);
       } else {
         const user = await Cache.get(Session.key);
 
         const wallets = user.unlocked.wallets;
         wallets.push(wallet);
 
-        await Session.createSession(user, wallets);
+        await Session.createSession(user, wallets, network);
       }
     } catch (err) {
       throw err;
@@ -132,7 +133,7 @@ const Session = {
     await Cache.set(user, Session.key);
   },
 
-  createSession: async (user, wallets) => {
+  createSession: async (user, wallets, network) => {
     for (let i = 0; i < wallets.length; ++i) {
       if (typeof wallets[i].sk !== "string") {
         wallets[i].sk = Object.values(
@@ -142,7 +143,7 @@ const Session = {
       }
     }
 
-    user.unlocked = { wallets };
+    user.unlocked = { network, wallets };
     await Cache.set(user, Session.key);
   }
 };

@@ -39,6 +39,7 @@ const Header = () => {
 
   const onNetworkChange = network => {
     ctx.setNetwork(network);
+    Session.updateDetails("network", network);
     Algorand.getAccount(network, ctx.wallet.address).then(ctx.setAccount);
   };
 

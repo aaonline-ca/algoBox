@@ -42,12 +42,13 @@ const Home = props => {
   const ctx = useContext(DataContext);
 
   useEffect(() => {
-    Session.isLoggedIn().then(isLoggedIn => {
-      if (isLoggedIn) {
+    Session.isLoggedIn().then(network => {
+      if (network) {
+        ctx.setNetwork(network);
         ctx.setWallet(Session.wallets[0]);
       }
     });
-  }, [ctx.setWallet]);
+  }, [ctx.setNetwork, ctx.setWallet]);
 
   const download = () => {
     const wallet = Algorand.createWallet();
@@ -94,7 +95,7 @@ const Home = props => {
     {
       icon: "wallet",
       text: "New Wallet",
-      action: () => Session.register(download())
+      action: () => Session.register(download(), ctx.network)
     },
     { icon: "history", text: "History", page: "history" },
     { icon: "times", text: "Logout", action: logout }
@@ -103,7 +104,7 @@ const Home = props => {
   const onRegister = async () => {
     try {
       const wallet = download();
-      Session.register(wallet, password);
+      Session.register(wallet, ctx.network, password);
       reset();
     } catch (err) {
       console.log(err);
@@ -114,7 +115,8 @@ const Home = props => {
 
   const onLogin = async () => {
     try {
-      await Session.login(password);
+      const network = await Session.login(password);
+      ctx.setNetwork(network);
       ctx.setWallet(Session.wallets[0]);
 
       const account = await Algorand.getAccount(
