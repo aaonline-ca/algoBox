@@ -45,7 +45,7 @@ const Home = props => {
     Session.isLoggedIn().then(network => {
       if (network) {
         ctx.setNetwork(network);
-        ctx.setWallet(Session.wallets[0]);
+        ctx.setWallet(Session.wallet);
       }
     });
   }, [ctx.setNetwork, ctx.setWallet]);
@@ -66,7 +66,6 @@ const Home = props => {
 
     document.body.removeChild(ele);
 
-    ctx.setWallet(wallet);
     return wallet;
   };
 
@@ -104,6 +103,7 @@ const Home = props => {
   const onRegister = async () => {
     try {
       const wallet = download();
+      ctx.setWallet(wallet);
       Session.register(wallet, ctx.network, password);
       reset();
     } catch (err) {
@@ -117,11 +117,11 @@ const Home = props => {
     try {
       const network = await Session.login(password);
       ctx.setNetwork(network);
-      ctx.setWallet(Session.wallets[0]);
+      ctx.setWallet(Session.wallet);
 
       const account = await Algorand.getAccount(
         ctx.network,
-        Session.wallets[0].address
+        Session.wallet.address
       );
       ctx.setAccount(account);
 

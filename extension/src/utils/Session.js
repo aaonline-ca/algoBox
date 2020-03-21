@@ -2,11 +2,14 @@ import Crypto from "crypto-js";
 
 import Cache from "./Cache";
 
+import * as config from "../config.json";
+
 const Session = {
   key: "algoBox.app.session",
+  wallet: null,
   wallets: [],
 
-  setWallets: wallets => {
+  setWallets: (wallets, user = null) => {
     Session.wallets = [...wallets];
 
     for (let i = 0; i < wallets.length; ++i) {
@@ -15,6 +18,10 @@ const Session = {
       } else {
         Session.wallets[i].sk = new Uint8Array(Object.values(wallets[i].sk));
       }
+    }
+
+    if (user) {
+      Session.wallet = { ...user.unlocked.wallet };
     }
   },
 
@@ -33,15 +40,14 @@ const Session = {
       return null;
     }
 
-    Session.setWallets(user.unlocked.wallets);
+    Session.setWallets(user.unlocked.wallets, user);
     return user.unlocked.network;
   },
 
   setAccount: address => {
     const wallet = Session.wallets.filter(e => e.address === address)[0];
-
-    Session.updateDetails("wallet", address);
-
+    Session.updateDetails("wallet", wallet);
+    Session.wallet = { ...wallet };
     return wallet;
   },
 
@@ -56,14 +62,11 @@ const Session = {
       throw new Error("No session found!");
     }
 
-    if (key === "wallet") {
-      // Find the wallet, and then bring it to front.
-      user.unlocked.wallets.sort((x, y) =>
-        x.address === value ? -1 : y.address === value ? 1 : 0
-      );
-    } else {
-      user.unlocked[key] = value;
+    if (key === "wallet" && typeof value.sk !== "string") {
+      value.sk = Object.values(JSON.parse(JSON.stringify(value.sk)));
+      value.sk = value.sk.toString();
     }
+    user.unlocked[key] = value;
 
     await Cache.set(user, Session.key);
   },
@@ -80,13 +83,19 @@ const Session = {
         const wallets = JSON.parse(decrypted.toString(Crypto.enc.Utf8));
 
         if (wallets && wallets.length > 0) {
-          Session.setWallets(wallets);
+          await Session.createSession(
+            user,
+            wallets,
+            config.algorand.networks[0],
+            wallets[0]
+          );
 
-          // Create an unlocked-session.
-          await Session.createSession(user, wallets);
+          Session.setWallets(wallets, user);
+
           return user.unlocked.network;
         }
       } catch (err) {
+        console.log(err);
         throw new Error("Incorrect password!");
       }
     } catch (err) {
@@ -101,14 +110,19 @@ const Session = {
         const json = JSON.stringify(wallets);
         const encrypted = Crypto.AES.encrypt(json, password).toString();
 
-        await Session.createSession({ wallets: encrypted }, wallets, network);
+        await Session.createSession(
+          { wallets: encrypted },
+          wallets,
+          network,
+          wallet
+        );
       } else {
         const user = await Cache.get(Session.key);
 
-        const wallets = user.unlocked.wallets;
-        wallets.push(wallet);
+        const wallets = [...user.unlocked.wallets, wallet];
 
-        await Session.createSession(user, wallets, network);
+        await Session.createSession(user, wallets);
+        Session.setWallets(wallets);
       }
     } catch (err) {
       throw err;
@@ -133,7 +147,7 @@ const Session = {
     await Cache.set(user, Session.key);
   },
 
-  createSession: async (user, wallets, network) => {
+  createSession: async (user, wallets, network = null, wallet = null) => {
     for (let i = 0; i < wallets.length; ++i) {
       if (typeof wallets[i].sk !== "string") {
         wallets[i].sk = Object.values(
@@ -143,7 +157,20 @@ const Session = {
       }
     }
 
-    user.unlocked = { network, wallets };
+    user.unlocked = user.unlocked || {};
+    user.unlocked.wallets = wallets;
+    if (network) {
+      user.unlocked.network = network;
+    }
+    if (wallet) {
+      if (typeof wallet.sk !== "string") {
+        wallet.sk = Object.values(JSON.parse(JSON.stringify(wallet.sk)));
+        wallet.sk = wallet.sk.toString();
+      }
+
+      user.unlocked.wallet = wallet;
+    }
+
     await Cache.set(user, Session.key);
   }
 };
