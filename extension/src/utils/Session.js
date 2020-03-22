@@ -137,6 +137,24 @@ const Session = {
     }
   },
 
+  removeWallet: async address => {
+    const isActive = Session.wallet.address === address;
+
+    Session.wallets = Session.wallets.filter(e => e.address !== address);
+
+    const user = await Cache.get(Session.key);
+    user.unlocked.wallets = user.unlocked.wallets.filter(
+      e => e.address !== address
+    );
+
+    if (isActive) {
+      Session.wallet = Session.wallets[0];
+      user.unlocked.wallet = user.unlocked.wallets[0];
+    }
+
+    await Cache.set(user, Session.key);
+  },
+
   logout: async () => {
     const user = await Cache.get(Session.key);
     if (!user) {
