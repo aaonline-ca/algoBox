@@ -133,7 +133,7 @@ const TransferTo = props => {
                   icon="clone"
                   style={{
                     float: "right",
-                    marginTop: "-13px",
+                    marginTop: "-17px",
                     fontSize: "12px",
                     cursor: "pointer",
                     position: "relative"
