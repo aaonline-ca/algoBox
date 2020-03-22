@@ -46,9 +46,12 @@ const Home = props => {
       if (network) {
         ctx.setNetwork(network);
         ctx.setWallet(Session.wallet);
+        Algorand.getAccount(network, Session.wallet.address).then(
+          ctx.setAccount
+        );
       }
     });
-  }, [ctx.setNetwork, ctx.setWallet]);
+  }, [ctx.setAccount, ctx.setNetwork, ctx.setWallet]);
 
   const download = () => {
     const wallet = Algorand.createWallet();
