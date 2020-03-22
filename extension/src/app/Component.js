@@ -4,6 +4,7 @@ import Home from "../pages/home";
 import Transfer from "../pages/transfer";
 import History from "../pages/history";
 import Wallet from "../pages/wallet";
+import ImportWallet from "../pages/wallet/ImportWallet";
 
 const getComponent = page => {
   switch (page) {
@@ -19,6 +20,9 @@ const getComponent = page => {
 
     case "wallet":
       return <Wallet />;
+
+    case "import-wallet":
+      return <ImportWallet />;
   }
 };
 

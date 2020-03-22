@@ -1,53 +1,55 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 
-import { MDBBtn } from "mdbreact";
-
-import Input from "../../utils/Input";
+import { AppCard, AppCardHeader } from "../home";
 import Algorand from "../../utils/Algorand";
 import Session from "../../utils/Session";
 import { DataContext } from "../../utils/DataProvider";
-import EmptyRow from "../../utils/EmptyRow";
 
 const Wallet = props => {
   const ctx = useContext(DataContext);
 
-  const [ref, setRef] = useState(null);
-  const [mnemonic, setMnemonic] = useState(null);
+  const download = () => {
+    const wallet = Algorand.createWallet();
 
-  const onClick = async () => {
-    try {
-      const wallet = Algorand.createWallet(mnemonic);
+    const ele = document.createElement("a");
+    ele.setAttribute(
+      "href",
+      "data:text/plain;charset=utf-8," + encodeURIComponent(wallet.mnemonic)
+    );
+    ele.setAttribute("download", `algorand-wallet-${wallet.address}.txt`);
+    ele.style.display = "none";
+    document.body.appendChild(ele);
 
-      const wallets = Session.wallets.filter(e => e.address === wallet.address);
-      if (wallets.length === 0) {
-        await Session.register(wallet, ctx.network);
-      }
-      ctx.setPage("home");
-    } catch (err) {
-      ref.classList.remove("is-invalid");
-    }
+    ele.click();
+
+    document.body.removeChild(ele);
+
+    return wallet;
   };
 
-  return (
-    <div>
-      <EmptyRow />
-      <Input
-        type="textarea"
-        label="Wallet mnemonic"
-        rows="3"
-        value={mnemonic}
-        setValue={setMnemonic}
-        onChange={_ref => {
-          setRef(_ref);
-          return {};
-        }}
-      />
-      <MDBBtn color="elegant" style={{ margin: "0" }} onClick={onClick}>
-        Import
-      </MDBBtn>
-      <EmptyRow />
-    </div>
-  );
+  const items = [
+    {
+      icon: "wallet",
+      text: "New Wallet",
+      action: () => Session.register(download(), ctx.network)
+    },
+    { icon: "file-import", text: "Import Wallet", page: "import-wallet" },
+    { icon: "trash-alt", text: "Remove Wallet", page: "remove-wallet" }
+  ];
+
+  return items.map(({ icon, text, page, action }, index) => (
+    <AppCard
+      key={index}
+      buttonText={<AppCardHeader icon={icon} text={text} />}
+      onClick={() => {
+        if (page) {
+          ctx.setPage(page);
+        } else {
+          action();
+        }
+      }}
+    />
+  ));
 };
 
 export default Wallet;

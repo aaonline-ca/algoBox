@@ -94,12 +94,7 @@ const Home = props => {
 
   const items = [
     { icon: "exchange-alt", text: "Transfer", page: "transfer" },
-    {
-      icon: "wallet",
-      text: "New Wallet",
-      action: () => Session.register(download(), ctx.network)
-    },
-    { icon: "file-import", text: "Import Wallet", page: "wallet" },
+    { icon: "wallet", text: "Wallet", page: "wallet" },
     { icon: "history", text: "History", page: "history" },
     { icon: "times", text: "Logout", action: logout }
   ];

@@ -95,7 +95,9 @@ const AppHeader = props => {
       <AppCard
         cls="algobox-back-btn"
         buttonText={<AppCardHeader icon="angle-left" text="Back" />}
-        onClick={() => ctx.setPage("home")}
+        onClick={() =>
+          ctx.setPage(ctx.page.endsWith("-wallet") ? "wallet" : "home")
+        }
       />
     </div>
   ) : (
