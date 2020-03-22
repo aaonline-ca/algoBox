@@ -127,12 +127,21 @@ const Process = {
                         .val(args.txParams.amount);
                       _popup.$("#card-algobox-url").html(args.host);
                     },
-                    async () => {
+                    async _popup => {
+                      // Disable the buttons.
+                      _popup.$("#algobox-cancel").attr("disabled", true);
+                      _popup
+                        .$("#algobox-confirm")
+                        .attr("disabled", true)
+                        .html(
+                          '<div class="spinner-border spinner-border-sm" role="status"></div>'
+                        );
+
                       args.secretKey = Session.wallet.sk;
                       args.network = network;
                       args.txParams.url = config.algorand.explorer[network];
 
-                      Process.sendTransaction(msgId, args);
+                      await Process.sendTransaction(msgId, args);
                     }
                   );
                 } else {
@@ -144,29 +153,20 @@ const Process = {
                 }
               }
 
-              return Callbacks.sendResponse(
-                msgId,
-                "failure",
-                "Invalid amount!"
-              );
+              Callbacks.sendResponse(msgId, "failure", "Invalid amount!");
             })
             .catch(err => {
-              console.log(err);
-              return Callbacks.sendResponse(
+              Callbacks.sendResponse(
                 msgId,
                 "failure",
-                "Failed to retrieve account balance!"
+                "Failed to get account balance!"
               );
             });
         } else {
-          return Callbacks.sendResponse(msgId, "failure", "Invalid amount!");
+          Callbacks.sendResponse(msgId, "failure", "Invalid amount!");
         }
       } else {
-        Callbacks.sendResponse(
-          msgId,
-          "failure",
-          "Need to call approve() first!"
-        );
+        Callbacks.sendResponse(msgId, "failure", "Call approve() first!");
       }
     });
   },
@@ -218,15 +218,24 @@ const Process = {
     });
   },
 
-  sendTransaction: (msgId, params) => {
+  sendTransaction: async (msgId, params) => {
     // de-serialize.
     params.txParams.date = new Date(params.txParams.date);
-    params.secretKey = new Uint8Array(params.secretKey.split(","));
+    if (params.secretKey.constructor !== Uint8Array) {
+      params.secretKey = new Uint8Array(params.secretKey.split(","));
+    }
 
-    Algorand.createTransaction(params.network, params.txParams)
-      .then(tx => Algorand.sendTransaction({ ...params, tx }))
-      .then(() => Callbacks.sendResponse(msgId, "success", params))
-      .catch(err => Callbacks.sendResponse(msgId, "failure", err));
+    try {
+      const tx = await Algorand.createTransaction(
+        params.network,
+        params.txParams
+      );
+      await Algorand.sendTransaction({ ...params, tx });
+
+      Callbacks.sendResponse(msgId, "success", "Sent");
+    } catch (err) {
+      Callbacks.sendResponse(msgId, "failure", "Failed to make transfer!");
+    }
   },
 
   pendingTransactions: params => {
@@ -250,7 +259,7 @@ const popup = (page, msgId, initFn, callback, redirect = false) => {
   };
 
   const popupConfirmHandler = async () => {
-    const result = await callback(popup, popupCloseHandler, popupLoadHandler);
+    const result = await callback(popup, popupCloseHandler);
     if (result) {
       return;
     }

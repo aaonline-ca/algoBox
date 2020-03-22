@@ -22,6 +22,12 @@ const Session = {
 
     if (user) {
       Session.wallet = { ...user.unlocked.wallet };
+
+      if (typeof Session.wallet.sk === "string") {
+        Session.wallet.sk = new Uint8Array(Session.wallet.sk.split(","));
+      } else {
+        Session.wallet.sk = new Uint8Array(Object.values(Session.wallet.sk));
+      }
     }
   },
 
