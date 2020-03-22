@@ -1,6 +1,7 @@
 /*global chrome,localStorage*/
 
 import Algorand from "../utils/Algorand";
+import Session from "../utils/Session";
 
 import * as config from "../config.json";
 
@@ -107,7 +108,7 @@ const Process = {
         _popup.$("#algobox-transfer-amount").html(args.amount);
         _popup.$("#card-algobox-url").html(args.host);
       },
-      () => {
+      async () => {
         const network = "";
         args.secretKey = "";
         args.network = network;
@@ -119,19 +120,43 @@ const Process = {
   },
 
   approve: (msgId, args) => {
-    popup(
-      "connect.html",
-      msgId,
-      _popup => {
+    // Check if logged in. If not, ask use to login.
+    Session.isLoggedIn().then(network => {
+      const initFn = _popup => {
         _popup.$("#host-title").html(args.title);
         _popup.$(".title-letter").html(args.title[0].toUpperCase());
         _popup.$("#connect-host").html(args.host);
-      },
-      () => {
+      };
+
+      const approval = async () => {
         Approval.approve(args.host);
         Callbacks.sendResponse(msgId, "success", "Host is approved");
+      };
+
+      const login = async (_popup, _popupCloseHandler) => {
+        const password = _popup.$("#password").val();
+
+        try {
+          await Session.login(password);
+
+          // When new page is loaded in same popup, we need to recreate
+          // the event handlers.
+          _popup.removeEventListener("beforeunload", _popupCloseHandler);
+
+          popup("connect.html", msgId, initFn, approval, true);
+        } catch (err) {
+          _popup.$("#password").addClass("is-invalid");
+        }
+
+        return true;
+      };
+
+      if (network) {
+        popup("connect.html", msgId, initFn, approval);
+      } else {
+        popup("login.html", msgId, () => {}, login);
       }
-    );
+    });
   },
 
   sendTransaction: (msgId, params) => {
@@ -150,7 +175,7 @@ const Process = {
   }
 };
 
-const popup = (page, msgId, replaceFn, callback) => {
+const popup = (page, msgId, initFn, callback, redirect = false) => {
   const popup = window.open(
     page,
     "extension_popup",
@@ -159,31 +184,37 @@ const popup = (page, msgId, replaceFn, callback) => {
 
   const popupCloseHandler = () => {
     Callbacks.sendResponse(msgId, "failure", "User has rejected the request");
+
+    if (popup && !popup.closed) {
+      popup.close();
+    }
   };
+
+  const popupConfirmHandler = async () => {
+    const result = await callback(popup, popupCloseHandler, popupLoadHandler);
+    if (result) {
+      return;
+    }
+
+    // Cancel the popup event handler.
+    popup.removeEventListener("beforeunload", popupCloseHandler);
+    popup.close();
+  };
+
+  const popupLoadHandler = () => {
+    initFn(popup);
+    popup.$("#algobox-cancel").on("click", popupCloseHandler);
+    popup.$("#algobox-confirm").on("click", popupConfirmHandler);
+  };
+
+  if (redirect) {
+    setTimeout(popupLoadHandler, 300);
+  } else {
+    popup.addEventListener("load", popupLoadHandler);
+  }
   popup.addEventListener("beforeunload", popupCloseHandler);
 
-  popup.addEventListener(
-    "load",
-    () => {
-      replaceFn(popup);
-
-      // If the user rejects it, send back the failure message.
-      popup.$("#algobox-cancel").on("click", () => {
-        popupCloseHandler();
-        popup.close();
-      });
-
-      popup.$("#algobox-confirm").on("click", () => {
-        // Cancel the popup event handler.
-        popup.removeEventListener("beforeunload", popupCloseHandler, false);
-
-        callback();
-
-        popup.close();
-      });
-    },
-    false
-  );
+  popup.focus();
 };
 
 // From the algoBox popup script.
