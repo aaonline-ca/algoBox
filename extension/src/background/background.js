@@ -35,8 +35,6 @@ const Approval = {
     await Cache.set({}, Approval.key);
   }
 };
-Approval.reset().then(() => Approval.approve(chrome.runtime.id));
-Session.logout();
 
 const Callbacks = {
   callbacks: {},
@@ -223,4 +221,10 @@ const popup = (page, msgId, initFn, callback, redirect = false) => {
 // From the algoBox popup script.
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return Process.main(message, sender, sendResponse);
+});
+
+// Load when broswer is loaded.
+chrome.runtime.onStartup.addListener(() => {
+  Approval.reset().then(() => Approval.approve(chrome.runtime.id));
+  Session.logout().catch(console.log);
 });
