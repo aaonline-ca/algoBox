@@ -8,7 +8,7 @@ import {
 
 import "./FormDate.css";
 
-const FormDate = ({ label, date, setDate }) => (
+const FormDate = ({ label, date, setDate, disable }) => (
   <MuiPickersUtilsProvider utils={DateFnsUtils}>
     <KeyboardDateTimePicker
       disableToolbar
@@ -17,6 +17,7 @@ const FormDate = ({ label, date, setDate }) => (
       label={label}
       value={date ? date : null}
       disablePast={true}
+      disabled={disable}
       onChange={setDate}
       autoOk={true}
       style={{ marginBottom: "15px" }}

@@ -24,13 +24,13 @@ const ScheduleDate = () => {
     <>
       <div
         className="custom-control custom-switch"
-        onClick={onClick}
-        disabled={ctx.disabled}
+        onClick={ctx.disabled ? () => {} : onClick}
       >
         <input
           type="checkbox"
           className="custom-control-input"
           checked={isActive}
+          disabled={ctx.disabled}
           onChange={() => ctx.setTxDate(new Date())}
         />
         <label
@@ -42,7 +42,12 @@ const ScheduleDate = () => {
         </label>
       </div>
       {isActive ? (
-        <FormDate date={ctx.txDate} setDate={ctx.setTxDate} label={""} />
+        <FormDate
+          date={ctx.txDate}
+          setDate={ctx.setTxDate}
+          label={""}
+          disable={ctx.disabled}
+        />
       ) : null}
     </>
   );
