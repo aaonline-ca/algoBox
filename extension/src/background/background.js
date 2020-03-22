@@ -1,5 +1,6 @@
-/*global chrome,localStorage*/
+/*global chrome*/
 
+import Cache from "../utils/Cache";
 import Algorand from "../utils/Algorand";
 import Session from "../utils/Session";
 
@@ -8,39 +9,34 @@ import * as config from "../config.json";
 const Approval = {
   key: "algoBox.approval",
 
-  getAll: () => {
-    const items = localStorage.getItem(Approval.key);
-    return items === null || items === undefined ? [] : JSON.parse(items);
+  getApprovals: async () => {
+    const items = await Cache.get(Approval.key);
+    return items || {};
   },
 
-  isApproved: (value, items = null) => {
-    if (value === null || value === undefined) {
+  isApproved: async host => {
+    if (!host) {
       return false;
     }
 
-    items = items !== null ? items : Approval.getAll();
-    return items.indexOf(value) > -1;
+    const items = await Approval.getApprovals();
+    return host in items ? true : false;
   },
 
-  approve: value => {
-    let items = Approval.getAll();
+  approve: async host => {
+    const items = await Approval.getApprovals();
+    items[host] = true;
 
-    if (!Approval.isApproved(value, items)) {
-      items.push(value);
-
-      localStorage.removeItem(Approval.key);
-      localStorage.setItem(Approval.key, JSON.stringify(items));
-      console.log(`approving ${chrome.runtime.id}`);
-    }
+    await Cache.set(items, Approval.key);
+    console.log(`approving ${host}`);
   },
 
-  reset: () => {
-    localStorage.removeItem(Approval.key);
-    localStorage.setItem(Approval.key, JSON.stringify([]));
+  reset: async () => {
+    await Cache.set({}, Approval.key);
   }
 };
-Approval.reset();
-Approval.approve(chrome.runtime.id);
+Approval.reset().then(() => Approval.approve(chrome.runtime.id));
+Session.logout();
 
 const Callbacks = {
   callbacks: {},
@@ -129,7 +125,7 @@ const Process = {
       };
 
       const approval = async () => {
-        Approval.approve(args.host);
+        await Approval.approve(args.host);
         Callbacks.sendResponse(msgId, "success", "Host is approved");
       };
 
@@ -152,7 +148,14 @@ const Process = {
       };
 
       if (network) {
-        popup("connect.html", msgId, initFn, approval);
+        Approval.isApproved(args.host).then(isApproved => {
+          // Check if already approved.
+          if (isApproved) {
+            Callbacks.sendResponse(msgId, "success", "Host is approved");
+          } else {
+            popup("connect.html", msgId, initFn, approval);
+          }
+        });
       } else {
         popup("login.html", msgId, () => {}, login);
       }
