@@ -99,6 +99,7 @@ const Home = props => {
       text: "New Wallet",
       action: () => Session.register(download(), ctx.network)
     },
+    { icon: "file-import", text: "Import Wallet", page: "wallet" },
     { icon: "history", text: "History", page: "history" },
     { icon: "times", text: "Logout", action: logout }
   ];

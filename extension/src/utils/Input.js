@@ -31,6 +31,7 @@ const Input = props => {
       {ctx => (
         <MDBInput
           inputRef={setRef}
+          rows={props.rows ? props.rows : ""}
           type={props.type ? props.type : "text"}
           value={props.value ? props.value : ""}
           hint={props.hint}

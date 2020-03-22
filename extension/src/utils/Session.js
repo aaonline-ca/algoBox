@@ -93,7 +93,8 @@ const Session = {
             user,
             wallets,
             config.algorand.networks[0],
-            wallets[0]
+            wallets[0],
+            password
           );
 
           Session.setWallets(wallets, user);
@@ -120,7 +121,8 @@ const Session = {
           { wallets: encrypted },
           wallets,
           network,
-          wallet
+          wallet,
+          password
         );
       } else {
         const user = await Cache.get(Session.key);
@@ -149,11 +151,23 @@ const Session = {
       throw new Error("No session found!");
     }
 
+    const wallets = JSON.stringify(user.unlocked.wallets);
+    user.wallets = Crypto.AES.encrypt(
+      wallets,
+      user.unlocked.password
+    ).toString();
     user.unlocked = undefined;
+
     await Cache.set(user, Session.key);
   },
 
-  createSession: async (user, wallets, network = null, wallet = null) => {
+  createSession: async (
+    user,
+    wallets,
+    network = null,
+    wallet = null,
+    password = null
+  ) => {
     for (let i = 0; i < wallets.length; ++i) {
       if (typeof wallets[i].sk !== "string") {
         wallets[i].sk = Object.values(
@@ -175,6 +189,9 @@ const Session = {
       }
 
       user.unlocked.wallet = wallet;
+    }
+    if (password) {
+      user.unlocked.password = password;
     }
 
     await Cache.set(user, Session.key);
