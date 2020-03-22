@@ -94,23 +94,81 @@ const Process = {
   },
 
   transfer: (msgId, args) => {
-    popup(
-      "approve.html",
-      msgId,
-      _popup => {
-        _popup.$("#algobox-transfer-to").html(args.to);
-        _popup.$("#algobox-transfer-amount").html(args.amount);
-        _popup.$("#card-algobox-url").html(args.host);
-      },
-      async () => {
-        const network = "";
-        args.secretKey = "";
-        args.network = network;
-        args.txParams.url = config.algorand.explorer[network];
+    // Check if logged in. If not, ask use to login.
+    Session.isLoggedIn().then(network => {
+      if (network) {
+        // Do validations.
+        if (!Algorand.isValidAddress(args.txParams.to)) {
+          return Callbacks.sendResponse(
+            msgId,
+            "failure",
+            "Invalid To address!"
+          );
+        }
+        if (!args.txParams.amount || args.txParams.amount.trim().length === 0) {
+          return Callbacks.sendResponse(msgId, "failure", "Invalid amount!");
+        }
 
-        Process.sendTransaction(msgId, args);
+        if (!isNaN(args.txParams.amount) && Number(args.txParams.amount) > 0) {
+          // Validate the account has enough funds.
+          Algorand.getAccount(network, Session.wallet.address)
+            .then(account => {
+              if (account && !isNaN(account.amount)) {
+                const balance = Number(account.amount) / Math.pow(10, 6);
+
+                if (balance > Number(args.txParams.amount)) {
+                  return popup(
+                    "approve.html",
+                    msgId,
+                    _popup => {
+                      _popup.$("#algobox-transfer-to").val(args.txParams.to);
+                      _popup
+                        .$("#algobox-transfer-amount")
+                        .val(args.txParams.amount);
+                      _popup.$("#card-algobox-url").html(args.host);
+                    },
+                    async () => {
+                      args.secretKey = Session.wallet.sk;
+                      args.network = network;
+                      args.txParams.url = config.algorand.explorer[network];
+
+                      Process.sendTransaction(msgId, args);
+                    }
+                  );
+                } else {
+                  return Callbacks.sendResponse(
+                    msgId,
+                    "failure",
+                    "Account doesnt have enough balance!"
+                  );
+                }
+              }
+
+              return Callbacks.sendResponse(
+                msgId,
+                "failure",
+                "Invalid amount!"
+              );
+            })
+            .catch(err => {
+              console.log(err);
+              return Callbacks.sendResponse(
+                msgId,
+                "failure",
+                "Failed to retrieve account balance!"
+              );
+            });
+        } else {
+          return Callbacks.sendResponse(msgId, "failure", "Invalid amount!");
+        }
+      } else {
+        Callbacks.sendResponse(
+          msgId,
+          "failure",
+          "Need to call approve() first!"
+        );
       }
-    );
+    });
   },
 
   approve: (msgId, args) => {

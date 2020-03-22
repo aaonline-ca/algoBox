@@ -13,7 +13,7 @@ const TransferAmount = props => {
   const ctx = useContext(DataContext);
 
   const onChangeAmount = (ref, amount) => {
-    if (amount === null || amount === undefined || amount.trim().length === 0) {
+    if (!amount || amount.trim().length === 0) {
       ctx.setValidation(validation => {
         return { ...validation, amount: false, amountValue: null };
       });
