@@ -96,6 +96,14 @@ const Home = props => {
     { icon: "exchange-alt", text: "Transfer", page: "transfer" },
     { icon: "wallet", text: "Wallet", page: "wallet" },
     { icon: "history", text: "History", page: "history" },
+    {
+      icon: "credit-card",
+      text: "Buy ALGO",
+      action: () => {
+        const _win = window.open("https://coinlist.co/trade/buy/ALGO/USD");
+        _win.focus();
+      }
+    },
     { icon: "times", text: "Logout", action: logout }
   ];
 
