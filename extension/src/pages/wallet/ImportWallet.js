@@ -8,7 +8,7 @@ import Session from "../../utils/Session";
 import { DataContext } from "../../utils/DataProvider";
 import EmptyRow from "../../utils/EmptyRow";
 
-const Wallet = props => {
+const ImportWallet = props => {
   const ctx = useContext(DataContext);
 
   const [ref, setRef] = useState(null);
@@ -50,4 +50,4 @@ const Wallet = props => {
   );
 };
 
-export default Wallet;
+export default ImportWallet;

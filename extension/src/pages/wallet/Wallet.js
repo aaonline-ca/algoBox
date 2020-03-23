@@ -34,7 +34,8 @@ const Wallet = props => {
       action: () => Session.register(download(), ctx.network)
     },
     { icon: "file-import", text: "Import Wallet", page: "import-wallet" },
-    { icon: "trash-alt", text: "Remove Wallet", page: "remove-wallet" }
+    { icon: "trash-alt", text: "Remove Wallet", page: "remove-wallet" },
+    { icon: "share", text: "Share Wallet", page: "share-wallet" }
   ];
 
   return items.map(({ icon, text, page, action }, index) => (

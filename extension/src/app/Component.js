@@ -6,6 +6,7 @@ import History from "../pages/history";
 import Wallet from "../pages/wallet";
 import ImportWallet from "../pages/wallet/ImportWallet";
 import RemoveWallet from "../pages/wallet/RemoveWallet";
+import ShareWallet from "../pages/wallet/ShareWallet";
 
 const getComponent = page => {
   switch (page) {
@@ -27,6 +28,9 @@ const getComponent = page => {
 
     case "remove-wallet":
       return <RemoveWallet />;
+
+    case "share-wallet":
+      return <ShareWallet />;
   }
 };
 
