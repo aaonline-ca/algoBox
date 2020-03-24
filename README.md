@@ -37,7 +37,7 @@ algoBox also injects few APIs for algorand developers to use (with zero effort o
     - opens up a popup where user can see who is requesting the approval access
     - if the user is not logged into the extension, it'll show a login popup first
     - once a website is approved, the approval will persists across that browser session (until the browser is closed)
-    - Within a session, if the website calls approve the next time (after its approved before), the new request is automatically approved.
+    - Within a session, if the website calls approve again (and its approved before), the new request is automatically approved.
 
 ```js
 await algoBox.approve();
