@@ -43,6 +43,8 @@ algoBox also injects few APIs for algorand developers to use (with zero effort o
 await algoBox.approve();
 ```
 
+<img src="https://i.imgur.com/GRrqNGX.png" width="250" /> <img src="https://i.imgur.com/AkL4JIw.png" width="250" />
+
 - **transfer**:
     - opens up a transfer popup with necessary details - *amount* and *receiver address*
     - *network* and *wallet* used is the one currently set in the chrome extension (when the transfer api is processed)
@@ -51,3 +53,5 @@ await algoBox.approve();
 ```js
 await algoBox.transfer(to, amount);
 ```
+
+<img src="https://i.imgur.com/ekpy7be.png" width="250" />
