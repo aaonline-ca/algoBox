@@ -72,7 +72,7 @@ const Accounts = ({ network, wallets, style, setShow, ...props }) => {
 
   return (
     <Popover {...props} style={{ width: "250px", left: "15px", top: "15px" }}>
-      <Popover.Title as="h3">My Accounts</Popover.Title>
+      <Popover.Title as="h3">My Wallets</Popover.Title>
       <Popover.Content style={{ padding: "0" }}>
         {accounts.length === 0 ? (
           <AccountSpinner />
